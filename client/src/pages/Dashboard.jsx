@@ -8,10 +8,14 @@ const Dashboard = () => {
  
 
   return (
-    <div className="h-screen w-screen flex bg-[#fbfaf8]">
-      <Navbar />
-      <Outlet />
-    </div>
+// Dashboard.jsx
+<div className="flex w-screen h-screen">
+  <Navbar />
+  <div className="flex-1 w-full h-full overflow-y-auto">
+    <Outlet />
+  </div>
+</div>
+
   );
 };
 

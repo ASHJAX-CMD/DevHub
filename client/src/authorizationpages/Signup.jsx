@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../Redux/slices/authSlices";
 import { useDispatch} from "react-redux";
+import { socket } from "../socket";
 // import jwtDecode from "jwt-decode";
 import { setUser } from "../Redux/slices/authSlices";
 export default function Signup() {
@@ -40,9 +41,12 @@ const dispatch = useDispatch();
     if(registerUser.fulfilled.match(respone)){
       console.log("Your Token Details", respone.payload.token);
       localStorage.setItem("token",respone.payload.token)
-      // alert(`Welcome ${respo`ne.payload.username}`);
+      socket.emit("register", respone.payload._id);
+      console.log("📡 Registered socket after login:", respone.payload._id);
       
-      navigate("/dashboard/home");
+      // alert(`Welcome ${respo`ne.payload.username}`);
+      alert(`Registration Successfull ${respone.payload.username}! Redirecting to Login Page...`)
+      navigate("/");
 
     }
      else {

@@ -14,7 +14,7 @@ const Home = () => {
   }, [dispatch]);
 
   return (
-    <div className="h-screen w-screen flex bg-[#fbfaf8]">
+    <div className="h-auto overflow-hidden w-auto flex bg-[#fbfaf8]">
       
       <div className="flex flex-col flex-1 p-4 overflow-y-auto space-y-6">
         <SearchProfile />

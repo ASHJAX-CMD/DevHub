@@ -1,22 +1,17 @@
-import React from 'react'
-import Navbar from '../components/Navbar'
-import SearchProfile from '../components/SearchProfile'
-import CreatePost from '../components/CreatePost'
+import React from 'react';
+import SearchProfile from '../components/SearchProfile';
+import CreatePost from '../components/CreatePost';
 
 const Create = () => {
-  CreatePost
   return (
-       <div className="h-screen w-screen flex bg-[#fbfaf8]">
-      
-      {/* Sidebar */}
-     
+    <div className="flex flex-col flex-1 bg-[#fbfaf8] p-4 space-y-6 overflow-y-auto h-full">
+      {/* Search bar and profile icon at top */}
+      <SearchProfile />
 
-      <div className="flex-1 p-6">
-        <SearchProfile />
-        <CreatePost />
-      </div>
+      {/* Create Post Section */}
+      <CreatePost />
     </div>
-  )
-}
+  );
+};
 
 export default Create;

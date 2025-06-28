@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { fetchUserProfile } from "../Redux/slices/authSlices";
 import { useDispatch} from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { socket } from "../socket";
 
 export default function Login() {
   const [password, setPassword] = React.useState("");
@@ -9,6 +10,13 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsloading] = useState(null);
+// useEffect(() => {
+//   const userId = localStorage.getItem("userId"); // or from Redux
+//   if (userId) {
+//     socket.emit("register", userId);
+//     console.log("📡 Registered socket with userId:", userId);
+//   }
+// }, []);
 
   const handleSignup = () => {
     navigate("/signup");
@@ -23,12 +31,21 @@ export default function Login() {
     setIsloading(true); // start loading
     const result = await dispatch(fetchUserProfile({ email, password }));
     setIsloading(false);
-    if (fetchUserProfile.fulfilled.match(result)) {
-      console.log("Your Token Details", result.payload.token);
-      localStorage.setItem("user",JSON.stringify(result.payload))
-      alert(`Welcome ${result.payload.username}`);
-      navigate("/dashboard/home");
-    } else {
+   if (fetchUserProfile.fulfilled.match(result)) {
+  console.log("Your Token Details", result.payload.token);
+
+  // Save user
+  localStorage.setItem("user", JSON.stringify(result.payload));
+  localStorage.setItem("userId", result.payload._id); // 👈 save _id for later use
+
+  // Register user with socket
+  socket.emit("register", result.payload._id);
+  console.log("📡 Registered socket after login:", result.payload._id);
+
+  alert(`Welcome ${result.payload.username}`);
+  navigate("/dashboard/home");
+}
+else {
       console.error("Login failed:", result.payload);
       alert(result.payload || "Login failed");
     }

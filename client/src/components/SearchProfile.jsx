@@ -1,59 +1,81 @@
-import React from 'react'
-import { ChevronDown, Search } from 'lucide-react'; // Import Search icon
+import React from "react";
+import { Search } from "lucide-react";
 import { FaChevronDown } from "react-icons/fa";
-import { useSelector } from 'react-redux';
+import { motion } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useDispatch} from 'react-redux';
+import { searchUsers } from '../Redux/slices/searchSlice'
+import {clearSearchResults } from '../Redux/slices/searchSlice';
+
 const SearchProfile = () => {
-  const getUsername =  JSON.parse(localStorage.getItem("user"));
- const username = getUsername.username || "problem";
+   const navigate = useNavigate();
+  const location = useLocation();
+  const [input, setInput] = useState("");
+  
+  const dispatch = useDispatch();
+useEffect(() => {
+  dispatch(clearSearchResults());
+}, [location.pathname,dispatch]);
+useEffect(() => {
+  const delay = setTimeout(() => {
+    if (input.trim()) {
+      dispatch(searchUsers(input));
+    } else {
+      dispatch(clearSearchResults()); // 🧹 clear if input is empty
+    }
+  }, 300); // debounce
 
- function getFirstUppercaseLetter(str) {
-  if (!str || typeof str !== 'string') return ''; // handle empty or invalid input
-  return str.charAt(0).toUpperCase();
-}
+  return () => clearTimeout(delay);
+}, [input,dispatch]);
+  const getUsername = JSON.parse(localStorage.getItem("user"));
+  const username = getUsername?.username || "Problem";
+ 
+  function getFirstUppercaseLetter(str) {
+    if (!str || typeof str !== "string") return "";
+    return str.charAt(0).toUpperCase();
+  }
+
   return (
-   
-    
-            <div className=" mt-6 p-6">
-               {console.log(getUsername)}
-        {/* Top bar */}
-        <div className="flex items-center justify-between mb-6">
-          {/* Search Bar with Icon */}
-          <div className="  relative  w-[90%]">
-            <Search className="absolute  left-3 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full border border-[rgba(0,0,0,0.9)] pl-10 pr-4 py-2  rounded-3xl focus:outline-none focus:ring-1 focus:ring-[#16ae5d]"
-            />
-          </div>
-
-          {/* Profile Image + Down Arrow */}
-          <div className="flex items-center mr-5 space-x-2">
-            {/* <img
-              src="./media/Profile (2).png"
-              alt="Profile"
-              className="h-14 w-14 rounded-full object-cover"
-            /> */}
-            <div className="bg-black text-white w-12 h-12 flex items-center justify-center rounded-full text-sm font-bold">
-              {console.log(username)}
-              {getFirstUppercaseLetter(username)}
-            </div>
-             <FaChevronDown  
-             size={25}
-               style={{
-          color: '#000',
-          fontWeight: 'bold',
-           // green if active, gray if not
-        }} />
-          </div>
+    <div  className="w-full px-4 py-4 md:px-8 bg-white shadow-sm rounded-xl ">
+      <div className="flex items-center justify-between">
+        {/* Search bar */}
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-5 h-5" />
+          <input
+          onChange={(e)=>{
+            setInput(e.target.value)
+          }}
+          onClick={()=>{
+            if(location.pathname==="/dashboard/explore"){
+              return
+            }
+            else{navigate("/dashboard/explore")}
+          }}
+            type="text"
+            placeholder="Search..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#16ae5d]"
+          />
+          {/* {console.log(searchResults)} */}
         </div>
-       
 
-        {/* Main content below the top bar */}
-        
+        {/* Profile icon */}
+        <div className="flex items-center gap-2 ml-4">
+          <motion.div
+          
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center font-bold"
+          >
+            {getFirstUppercaseLetter(username)}
+          </motion.div>
+          <FaChevronDown size={20} className="text-gray-700" />
+        </div>
       </div>
-    
-  )
-}
+    </div>
+  );
+};
 
-export default SearchProfile
+export default SearchProfile;

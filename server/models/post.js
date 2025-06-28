@@ -4,7 +4,7 @@ const postSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // assumes you have a User model
+      ref: "User",
       required: true
     },
     content: {
@@ -15,16 +15,40 @@ const postSchema = new mongoose.Schema(
     },
     images: [
       {
-        type: String // store image URLs or filenames
+        type: String
       }
     ],
     file: {
-      type: String, // store uploaded file name or path
+      type: String,
       required: true
-    }
+    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ],
+    comments: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true
+        },
+        text: {
+          type: String,
+          required: true,
+          maxlength: 500
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ]
   },
   {
-    timestamps: true // adds createdAt and updatedAt
+    timestamps: true
   }
 );
 
