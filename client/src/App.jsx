@@ -2,7 +2,6 @@ import "./App.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Provider } from "react-redux";
-import { useEffect } from "react";
 
 import { store } from "./Redux/store";
 import { socket } from "./socket";
@@ -17,7 +16,9 @@ import Explore from "./pages/Explore";
 import Create from "./pages/Create";
 import Alert from "./pages/Alert";
 import Messages from "./pages/Messages";
-import MessagePanel from "../src/components/MessagesPanel";
+import MessagePanel from "./components/MessagesPanel";
+
+import SocketHandler from "./SocketHandler"; // ✅ custom component that handles socket + dispatch
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -62,7 +63,7 @@ function AnimatedRoutes() {
             element={
               <ProtectedRoutes>
                 <PageWrapper>
-                  <MessagePanel/>
+                  <MessagePanel />
                 </PageWrapper>
               </ProtectedRoutes>
             }
@@ -87,18 +88,6 @@ function AnimatedRoutes() {
               </ProtectedRoutes>
             }
           />
-          <Route
-            path="alerts"
-            element={
-              <ProtectedRoutes>
-                <PageWrapper>
-                  <Alert />
-                </PageWrapper>
-              </ProtectedRoutes>
-            }
-          />
-
-          {/* 📩 Messages Page */}
           <Route
             path="messages"
             element={
@@ -125,25 +114,10 @@ function AnimatedRoutes() {
 }
 
 function App() {
-  useEffect(() => {
-    socket.connect();
-
-    socket.on("connect", () => {
-      console.log("🟢 Connected to socket:", socket.id);
-    });
-
-    socket.on("receiveMessage", (data) => {
-      console.log("📨 New message:", data);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
   return (
     <Provider store={store}>
       <BrowserRouter>
+        <SocketHandler /> {/* ✅ socket logic now lives here */}
         <AnimatedRoutes />
       </BrowserRouter>
     </Provider>

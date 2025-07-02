@@ -1,10 +1,25 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { FaThumbsUp, FaRegCommentDots, FaPaperPlane } from 'react-icons/fa';
+// components/PostCard.jsx
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { FaThumbsUp, FaRegCommentDots, FaPaperPlane } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { toggleFollow } from "../Redux/slices/postSlice";
 
 const PostCard = ({ content, images, file, createdAt, userId }) => {
   const [activeTab, setActiveTab] = useState("Code");
   const [code, setCode] = useState("");
+  const dispatch = useDispatch();
+
+  const handleFollowToggle = () => {
+    if (!userId?._id) return;
+
+    dispatch(
+      toggleFollow({
+        userId: userId._id,
+        isCurrentlyFollowing: userId.isFollowing,
+      })
+    );
+  };
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -24,39 +39,45 @@ const PostCard = ({ content, images, file, createdAt, userId }) => {
     <div className="mb-6">
       {/* Tabs */}
       <div className="flex ml-20">
-        <div
-          onClick={() => setActiveTab("Code")}
-          className={`rounded-tr-2xl p-4 w-[5%] cursor-pointer text-center ${
-            activeTab === "Code" ? "font-bold bg-white h-[3rem]" : "text-xs shadow-sm bg-white h-[3rem]"
-          }`}
-        >
-          Code
-        </div>
-        <div
-          onClick={() => setActiveTab("Image")}
-          className={`rounded-tr-2xl p-4 w-[5%] cursor-pointer text-center ${
-            activeTab === "Image" ? "font-bold bg-white h-[3rem]" : "text-xs shadow-sm bg-white h-[3rem]"
-          }`}
-        >
-          Image
-        </div>
+        {["Code", "Image"].map((tab) => (
+          <div
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`rounded-tr-2xl p-4 w-[5%] cursor-pointer text-center ${
+              activeTab === tab
+                ? "font-bold bg-white h-[3rem]"
+                : "text-xs shadow-sm bg-white h-[3rem]"
+            }`}
+          >
+            {tab}
+          </div>
+        ))}
       </div>
 
       {/* Main Card */}
-      <div className="rounded-tr-md p-5 w-[40%] ml-20  bg-white shadow-sm flex flex-col space-y-4">
-        
+      <div className="rounded-tr-md p-5 w-[40%] ml-20 bg-white shadow-sm flex flex-col space-y-4">
         {/* Header */}
         <div className="flex justify-between items-center border-t border-b border-black py-2">
           <div className="flex items-center space-x-3">
             <div className="bg-black text-white w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold">
-              {userId?.username ? userId.username[0].toUpperCase() : 'U'}
+              {userId?.username ? userId.username[0].toUpperCase() : "U"}
             </div>
             <div>
               <p className="font-semibold">{userId?.username || "Unknown User"}</p>
-              <p className="text-xs text-gray-500">{new Date(createdAt).toLocaleString()}</p>
+              <p className="text-xs text-gray-500">
+                {new Date(createdAt).toLocaleString()}
+              </p>
             </div>
           </div>
-          <button className="text-green-600 font-semibold hover:underline">Follow</button>
+
+          <button
+            onClick={handleFollowToggle}
+            className={`font-semibold hover:underline ${
+              userId?.isFollowing ? "text-gray-600" : "text-green-600"
+            }`}
+          >
+            {userId?.isFollowing ? "Following" : "Follow"}
+          </button>
         </div>
 
         {/* Content */}

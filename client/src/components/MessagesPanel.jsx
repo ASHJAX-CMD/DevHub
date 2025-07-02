@@ -20,6 +20,9 @@ const MessagesPanel = ({ receiver }) => {
   console.log("🧾 receiverId:", receiverId);
   console.log("🧾 reloadTrigger:", reloadTrigger);
 
+
+
+
   // ✅ Fetch messages on initial load or trigger
   useEffect(() => {
     const fetchMessages = async () => {

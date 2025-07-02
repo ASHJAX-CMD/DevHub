@@ -1,4 +1,4 @@
-import React, {  useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { fetchUserProfile } from "../Redux/slices/authSlices";
 import { useDispatch} from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -22,6 +22,8 @@ export default function Login() {
     navigate("/signup");
     console.log("Navigating to signup page");
   };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

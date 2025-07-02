@@ -8,5 +8,5 @@ const fetchPost = require("../controllers/fetchPost"); // Not destructured
 
 // POST /api/posts/create
 router.post("/create",verifyToken,upload, createPost);
-router.get("/fetch",fetchPost);
+router.get("/fetch",verifyToken,fetchPost);
 module.exports = router;

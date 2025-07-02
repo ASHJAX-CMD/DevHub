@@ -75,12 +75,12 @@ const Navbar = () => {
             }}
           />
 
-          <SidebarIcon
+          {/* <SidebarIcon
             icon={Bell}
             
             onClick={() => navigate('/dashboard/alerts')}
             className={activeTab === 'Alerts' ? 'text-[#16ae5d]' : ''}
-          />
+          /> */}
         </div>
       </div>
 
