@@ -19,6 +19,7 @@ import Messages from "./pages/Messages";
 import MessagePanel from "./components/MessagesPanel";
 
 import SocketHandler from "./SocketHandler"; // ✅ custom component that handles socket + dispatch
+import Profile from "./pages/Profile";
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -88,6 +89,7 @@ function AnimatedRoutes() {
               </ProtectedRoutes>
             }
           />
+
           <Route
             path="messages"
             element={
@@ -108,6 +110,11 @@ function AnimatedRoutes() {
             />
           </Route>
         </Route>
+        <Route path="/profile" element={
+          <ProtectedRoutes>
+          <Profile/>
+          </ProtectedRoutes>
+        }/>
       </Routes>
     </AnimatePresence>
   );

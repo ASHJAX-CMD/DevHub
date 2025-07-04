@@ -10,7 +10,7 @@ const fetchPost = async (req, res) => {
     const followingSet = new Set(currentUser.following.map(id => id.toString()));
 
     const posts = await Post.find()
-      .populate("userId", "fullName username email _id")
+      .populate("userId", "fullName username email _id profileImage")
       .sort({ createdAt: -1 });
 
     const postsWithFollowStatus = posts.map(post => {

@@ -22,6 +22,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    bio: {
+      type: String,
+      default: "",
+      maxlength: 300,
+    },
+    profileImage: {
+      type: String,
+      default: "", // Or default: "default.jpg"
+    },
     posts: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -4,7 +4,9 @@ const cors = require("cors");
 const path = require("path");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
+const verifyToken = require("./middleware/verifyToken");
 
+const User = require("./models/userModel");
 const connectDB = require("./config/db");
 const Chat = require("./models/chatModel");
 
@@ -17,6 +19,20 @@ const app = express();
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads/profile", express.static(path.join(__dirname, "uploads/profile")));
+app.put("/api/users/update-profile-info", verifyToken, async (req, res) => {
+  const { fullName, bio } = req.body;
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      { fullName, bio },
+      { new: true }
+    ).select("-password");
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update profile info" });
+  }
+});
 
 // Create HTTP + Socket.io server
 const httpServer = createServer(app);
@@ -39,6 +55,8 @@ app.use("/api/posts", require("./routes/postRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/messages", require("./routes/messageRoute"));
 app.use("/api/follow", require("./routes/followRoute"));
+app.use("/api/userprofile", require("./routes/profileRoute")); 
+
 // Health Check
 app.get("/", (req, res) => res.send("✅ API is running"));
 

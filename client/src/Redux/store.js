@@ -4,6 +4,7 @@ import authReducer from "./slices/authSlices"
 import searchReducer from "./slices/searchSlice"
 import messageReducer from "./slices/chatSlice"
 import onlineUser from "./slices/onlineUserSlice"
+import profileReducer from "./slices/profileSlice"
 // import navbarReducer from './slices/navbarSlice'
 export const store = configureStore({
  reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     search: searchReducer,
     chat: messageReducer,
     online:onlineUser,
+    profile: profileReducer,
   },
 })

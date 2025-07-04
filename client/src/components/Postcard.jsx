@@ -1,4 +1,3 @@
-// components/PostCard.jsx
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaThumbsUp, FaRegCommentDots, FaPaperPlane } from "react-icons/fa";
@@ -35,6 +34,11 @@ const PostCard = ({ content, images, file, createdAt, userId }) => {
     if (file) fetchFile();
   }, [file]);
 
+  const getFirstLetter = (str) => {
+    if (!str || typeof str !== "string") return "U";
+    return str.charAt(0).toUpperCase();
+  };
+
   return (
     <div className="mb-6">
       {/* Tabs */}
@@ -59,9 +63,20 @@ const PostCard = ({ content, images, file, createdAt, userId }) => {
         {/* Header */}
         <div className="flex justify-between items-center border-t border-b border-black py-2">
           <div className="flex items-center space-x-3">
-            <div className="bg-black text-white w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold">
-              {userId?.username ? userId.username[0].toUpperCase() : "U"}
+            {/* 👤 Profile Circle */}
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center text-sm font-bold bg-black text-white">
+              {userId?.profileImage ? (
+                <img
+                  src={`http://localhost:5000/uploads/profile/${userId.profileImage}`}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                getFirstLetter(userId?.username)
+              )}
             </div>
+
+            {/* Username & Time */}
             <div>
               <p className="font-semibold">{userId?.username || "Unknown User"}</p>
               <p className="text-xs text-gray-500">
@@ -70,6 +85,7 @@ const PostCard = ({ content, images, file, createdAt, userId }) => {
             </div>
           </div>
 
+          {/* Follow Button */}
           <button
             onClick={handleFollowToggle}
             className={`font-semibold hover:underline ${

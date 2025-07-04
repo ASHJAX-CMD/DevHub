@@ -63,6 +63,7 @@ exports.login = async (req, res) => {
       username: user.username,
       email: user.email,
       fullName: user.fullName,
+      profileImage:user.profileImage,
       token: generateToken(user._id),
     });
   } catch (error) {
