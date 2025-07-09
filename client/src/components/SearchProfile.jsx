@@ -37,11 +37,11 @@ const SearchProfile = () => {
   };
 
   return (
-    <div className="w-full px-4 py-4 md:px-8 bg-white shadow-sm rounded-xl">
+    <div className="w-full px-4 py-4 md:px-8 bg-black shadow-sm rounded-xl">
       <div className="flex items-center justify-between">
         {/* 🔍 Search bar */}
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-5 h-5" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-4 h-4" />
           <input
             onChange={(e) => setInput(e.target.value)}
             onClick={() => {
@@ -51,7 +51,7 @@ const SearchProfile = () => {
             }}
             type="text"
             placeholder="Search..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#16ae5d]"
+            className="w-full sm:h-10 pl-10 pr-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#16ae5d]"
           />
         </div>
 
@@ -62,7 +62,7 @@ const SearchProfile = () => {
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-12 h-12 rounded-full overflow-hidden border border-gray-300 cursor-pointer"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border border-gray-300 cursor-pointer"
           >
             {profileImage ? (
               <img

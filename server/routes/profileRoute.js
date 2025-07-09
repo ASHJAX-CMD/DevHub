@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const userProfile = require("../controllers/userProfile"); // controller function
+const {getUserProfile,PublicUser} = require("../controllers/userProfile"); // controller function
 const verifyToken = require("../middleware/verifyToken");
 const profileUpload = require("../middleware/profileUpload");
 const User = require("../models/userModel");
 
 // GET /api/userprofile/currentuserprofile
-router.get("/currentuserprofile", verifyToken, userProfile);
+router.get("/currentuserprofile", verifyToken, getUserProfile);
 
 
 router.put("/update-profile-image", verifyToken, profileUpload, async (req, res) => {
@@ -24,6 +24,7 @@ router.put("/update-profile-image", verifyToken, profileUpload, async (req, res)
   }
 });
 
+router.get("/:id",verifyToken,PublicUser)
 module.exports = router;
 
 module.exports = router;

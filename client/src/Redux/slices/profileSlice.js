@@ -1,20 +1,20 @@
-// src/Redux/slices/profileSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const token = localStorage.getItem("token");
 
 // 📥 Fetch current profile data
 export const fetchUserProfile = createAsyncThunk(
   "profile/fetchUserProfile",
   async (_, thunkAPI) => {
     try {
+      const token = localStorage.getItem("token"); // ✅ get token at runtime
       const res = await axios.get("http://localhost:5000/api/userprofile/currentuserprofile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message || "Failed to fetch profile");
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch profile"
+      );
     }
   }
 );
@@ -24,6 +24,7 @@ export const updateProfileInfo = createAsyncThunk(
   "profile/updateProfileInfo",
   async ({ fullName, bio }, thunkAPI) => {
     try {
+      const token = localStorage.getItem("token"); // ✅
       const res = await axios.put(
         "http://localhost:5000/api/users/update-profile-info",
         { fullName, bio },
@@ -33,7 +34,9 @@ export const updateProfileInfo = createAsyncThunk(
       );
       return res.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message || "Failed to update profile info");
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to update profile info"
+      );
     }
   }
 );
@@ -43,21 +46,30 @@ export const updateProfileImage = createAsyncThunk(
   "profile/updateProfileImage",
   async (file, thunkAPI) => {
     try {
+      const token = localStorage.getItem("token"); // ✅
       const formData = new FormData();
       formData.append("profileImage", file);
-      const res = await axios.put("http://localhost:5000/api/userprofile/update-profile-image", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      return res.data.profileImage;
+
+      const res = await axios.put(
+        "http://localhost:5000/api/userprofile/update-profile-image",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return res.data.profileImage; // return filename
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data?.message || "Failed to upload image");
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to upload image"
+      );
     }
   }
 );
 
+// 🔧 Profile Slice
 const profileSlice = createSlice({
   name: "profile",
   initialState: {
@@ -74,7 +86,7 @@ const profileSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // FETCH
+      // FETCH PROFILE
       .addCase(fetchUserProfile.pending, (state) => {
         state.loading = true;
       })
@@ -102,7 +114,9 @@ const profileSlice = createSlice({
 
       // UPDATE IMAGE
       .addCase(updateProfileImage.fulfilled, (state, action) => {
-        state.profile.profileImage = action.payload;
+        if (state.profile) {
+          state.profile.profileImage = action.payload;
+        }
       });
   },
 });

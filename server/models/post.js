@@ -13,6 +13,19 @@ const postSchema = new mongoose.Schema(
       maxlength: 1000,
       required: true
     },
+      likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  shares: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        sharedAt: { type: Date, default: Date.now },
+      },
+    ],
+
     images: [
       {
         type: String

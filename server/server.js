@@ -5,7 +5,6 @@ const path = require("path");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const verifyToken = require("./middleware/verifyToken");
-
 const User = require("./models/userModel");
 const connectDB = require("./config/db");
 const Chat = require("./models/chatModel");
@@ -56,6 +55,7 @@ app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/messages", require("./routes/messageRoute"));
 app.use("/api/follow", require("./routes/followRoute"));
 app.use("/api/userprofile", require("./routes/profileRoute")); 
+app.use("/api/comments", require("./routes/commentRoutes"));
 
 // Health Check
 app.get("/", (req, res) => res.send("✅ API is running"));

@@ -9,9 +9,11 @@ const Dashboard = () => {
 
   return (
 // Dashboard.jsx
-<div className="flex w-screen h-screen">
-  <Navbar />
-  <div className="flex-1 w-full h-full overflow-y-auto">
+<div className="flex w-screen scrollbar-none bg-black h-screen">
+  <div className="flex " >
+    <Navbar />
+  </div>
+  <div className="flex-1 w-full  scrollbar-none h-full overflow-y-auto">
     <Outlet />
   </div>
 </div>

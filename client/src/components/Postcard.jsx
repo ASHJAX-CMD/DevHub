@@ -1,23 +1,52 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaThumbsUp, FaRegCommentDots, FaPaperPlane } from "react-icons/fa";
-import { useDispatch } from "react-redux";
-import { toggleFollow } from "../Redux/slices/postSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleFollow, toggleLike, sharePost } from "../Redux/slices/postSlice";
+import Comment from "../components/Comments";
+import { Link, useNavigate } from "react-router-dom";
 
-const PostCard = ({ content, images, file, createdAt, userId }) => {
+const PostCard = ({
+  content,
+  images,
+  file,
+  createdAt,
+  postId,
+  userId,
+  likesCount,
+  likedByUser,
+  sharesCount,
+}) => {
   const [activeTab, setActiveTab] = useState("Code");
   const [code, setCode] = useState("");
+  const [showComments, setShowComments] = useState(false);
+  const [shared, setShared] = useState(false);
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const currentUserId = user?._id;
+
+  const handleShare = () => {
+    dispatch(sharePost({ postId }));
+    const shareUrl = `${window.location.origin}/post/${postId}`;
+    navigator.clipboard.writeText(shareUrl);
+    alert("🔗 Post link copied to clipboard!");
+    setShared(true);
+  };
 
   const handleFollowToggle = () => {
     if (!userId?._id) return;
-
     dispatch(
       toggleFollow({
         userId: userId._id,
         isCurrentlyFollowing: userId.isFollowing,
       })
     );
+  };
+
+  const handleLikeToggle = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    dispatch(toggleLike({ postId }));
   };
 
   useEffect(() => {
@@ -30,62 +59,72 @@ const PostCard = ({ content, images, file, createdAt, userId }) => {
         setCode("⚠️ Unable to load file content.");
       }
     };
-
     if (file) fetchFile();
   }, [file]);
+
+  useEffect(() => {
+    setShared(false);
+  }, [postId]);
 
   const getFirstLetter = (str) => {
     if (!str || typeof str !== "string") return "U";
     return str.charAt(0).toUpperCase();
   };
 
+  // ✅ Profile link logic
+  const getProfileLink = (publicId, currentId) => {
+    return publicId === currentId ? "/profile" : `/profile/${publicId}`;
+  };
+
+  const profileLink = getProfileLink(userId?._id, currentUserId);
+
   return (
-    <div className="mb-6">
+    <div className="relative flex flex-col md:flex-row md:ml-20 md:space-x-6 px-2">
       {/* Tabs */}
-      <div className="flex ml-20">
+      <div className="flex flex-row md:flex-col mt-4 gap-2 overflow-x-auto scrollbar-none">
         {["Code", "Image"].map((tab) => (
           <div
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`rounded-tr-2xl p-4 w-[5%] cursor-pointer text-center ${
+            className={`rounded-tr-2xl cursor-pointer text-center border ${
               activeTab === tab
-                ? "font-bold bg-white h-[3rem]"
-                : "text-xs shadow-sm bg-white h-[3rem]"
-            }`}
+                ? "font-bold text-white bg-black"
+                : "text-xs text-white bg-black shadow-sm"
+            } w-[4rem] h-[2.5rem] md:w-[4rem] md:h-[3rem] text-sm flex items-center justify-center`}
           >
             {tab}
           </div>
         ))}
       </div>
 
-      {/* Main Card */}
-      <div className="rounded-tr-md p-5 w-[40%] ml-20 bg-white shadow-sm flex flex-col space-y-4">
+      {/* Main Post */}
+      <div className="rounded-xl p-2 w-full md:w-[40%] bg-black border-b-2 shadow-sm flex flex-col space-y-4">
         {/* Header */}
-        <div className="flex justify-between items-center border-t border-b border-black py-2">
-          <div className="flex items-center space-x-3">
-            {/* 👤 Profile Circle */}
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center text-sm font-bold bg-black text-white">
-              {userId?.profileImage ? (
-                <img
-                  src={`http://localhost:5000/uploads/profile/${userId.profileImage}`}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                getFirstLetter(userId?.username)
-              )}
+        <div className="flex justify-between items-center border-t border-b border-white py-2">
+          <Link to={profileLink}>
+            <div className="flex items-center space-x-3 cursor-pointer">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center text-sm font-bold bg-black text-white">
+                {userId?.profileImage ? (
+                  <img
+                    src={`http://localhost:5000/uploads/profile/${userId.profileImage}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  getFirstLetter(userId?.username)
+                )}
+              </div>
+              <div>
+                <p className="font-semibold text-white">
+                  {userId?.username || "Unknown User"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date(createdAt).toLocaleString()}
+                </p>
+              </div>
             </div>
+          </Link>
 
-            {/* Username & Time */}
-            <div>
-              <p className="font-semibold">{userId?.username || "Unknown User"}</p>
-              <p className="text-xs text-gray-500">
-                {new Date(createdAt).toLocaleString()}
-              </p>
-            </div>
-          </div>
-
-          {/* Follow Button */}
           <button
             onClick={handleFollowToggle}
             className={`font-semibold hover:underline ${
@@ -96,24 +135,24 @@ const PostCard = ({ content, images, file, createdAt, userId }) => {
           </button>
         </div>
 
-        {/* Content */}
+        {/* Content Area */}
         {activeTab === "Code" ? (
           <div className="space-y-2">
-            <p className="text-sm text-gray-700">{content}</p>
-            <div className="text-xs text-blue-700">📄 File: {file}</div>
-            <div className="bg-gray-100 p-2 rounded text-sm whitespace-pre-wrap overflow-y-auto max-h-56">
+            <p className="text-sm text-gray-300">{content}</p>
+            <div className="text-xs text-blue-500">📄 File: {file}</div>
+            <div className="bg-black md:p-2 h-56 text-sm text-white border-b border-gray-200 whitespace-pre-wrap overflow-y-auto max-h-56 scrollbar-none">
               {code}
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid md:h-auto h-60 grid-cols-2 gap-2">
             {images?.length > 0 ? (
               images.map((img, i) => (
                 <img
                   key={i}
                   src={`http://localhost:5000/uploads/${img}`}
                   alt={`Post image ${i}`}
-                  className="rounded max-h-56 object-cover"
+                  className="rounded max-h-56 object-cover w-full"
                 />
               ))
             ) : (
@@ -122,22 +161,54 @@ const PostCard = ({ content, images, file, createdAt, userId }) => {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="pt-2 border-t border-black flex justify-around text-sm text-black">
-          <div className="flex items-center space-x-1 cursor-pointer hover:scale-105 transition">
-            <FaThumbsUp />
-            <span>Like</span>
+        {/* Footer Actions */}
+        <div className="pt-2 border-t border-black flex justify-around text-sm text-white">
+          <div
+            className="flex items-center space-x-1 cursor-pointer hover:scale-105 transition"
+            onClick={handleLikeToggle}
+          >
+            <FaThumbsUp className={likedByUser ? "text-green-600 text-xl" : ""} />
+            <span className="ml-1 text-xs">{likesCount}</span>
           </div>
-          <div className="flex items-center space-x-1 cursor-pointer hover:scale-105 transition">
+          <div
+            className={`flex items-center space-x-1 text-xl cursor-pointer hover:scale-105 transition ${
+              showComments ? "text-green-600" : ""
+            }`}
+            onClick={() => setShowComments((prev) => !prev)}
+          >
             <FaRegCommentDots />
-            <span>Comment</span>
           </div>
-          <div className="flex items-center space-x-1 cursor-pointer hover:scale-105 transition">
+          <div
+            className={`flex items-center text-xl space-x-1 cursor-pointer hover:scale-105 transition ${
+              shared ? "text-green-600" : "text-white"
+            }`}
+            onClick={handleShare}
+          >
             <FaPaperPlane />
-            <span>Share</span>
+            <span className="ml-1 text-xs">({sharesCount})</span>
           </div>
         </div>
       </div>
+
+      {/* Comments Section */}
+      {showComments && (
+        <div
+          className={`
+            fixed inset-0 z-50 bg-black bg-opacity-90 p-2
+            md:static md:z-auto md:bg-transparent md:p-0
+            flex flex-col rounded-xl w-full md:w-[30vw] md:max-h-auto md:h-auto
+          `}
+        >
+          {/* Close (mobile only) */}
+          <button
+            onClick={() => setShowComments(false)}
+            className="text-gray-400 self-end mb-2 text-s md:hidden"
+          >
+            close
+          </button>
+          <Comment postId={postId} />
+        </div>
+      )}
     </div>
   );
 };

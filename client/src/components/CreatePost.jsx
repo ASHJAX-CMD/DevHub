@@ -4,16 +4,14 @@ export default function CreatePost() {
   const [content, setContent] = useState("");
   const [codeFile, setCodeFile] = useState(null);
   const [images, setImages] = useState([]);
-  const [userId, setUserId] = useState("YOUR_USER_ID_HERE"); // Replace this with actual logged-in user ID
+  const [userId, setUserId] = useState("YOUR_USER_ID_HERE");
 
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
-
     if (selectedFiles.length > 4) {
       alert("You can only upload up to 4 images!");
       return;
     }
-
     setImages(selectedFiles);
   };
 
@@ -31,22 +29,21 @@ export default function CreatePost() {
 
     const formData = new FormData();
     formData.append("content", content);
-formData.append("file", codeFile);
-images.forEach((img) => formData.append("images", img));
+    formData.append("file", codeFile);
+    images.forEach((img) => formData.append("images", img));
 
     try {
-     const res = await fetch("http://localhost:5000/api/posts/create", {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`, // token stored on login
-  },
-  body: formData,
-});
+      const res = await fetch("http://localhost:5000/api/posts/create", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
       const data = await res.json();
 
       if (res.ok) {
         alert("Post created successfully!");
-        // reset form
         setContent("");
         setCodeFile(null);
         setImages([]);
@@ -60,14 +57,15 @@ images.forEach((img) => formData.append("images", img));
   };
 
   return (
-    <div className="px-20 py-6">
-      <h2 className="text-xl font-semibold mb-4">Create a Snippet</h2>
+    <div className="bg-black px-4 md:px-20 py-6 min-h-screen">
+      <h2 className="text-xl text-white font-semibold mb-4">Create a Snippet</h2>
+
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col md:flex-row bg-white shadow rounded-lg p-6 gap-6"
+        className="flex flex-col md:flex-row bg-zinc-900 shadow rounded-lg p-6 gap-6"
       >
-        {/* Left: Upload Section */}
-        <label className="cursor-pointer flex flex-col items-center">
+        {/* Upload Section */}
+        <label className="w-full md:w-1/2 flex flex-col items-center justify-center border border-gray-600 rounded-md p-4 cursor-pointer hover:bg-zinc-800 transition">
           <input
             type="file"
             accept="image/*"
@@ -76,31 +74,31 @@ images.forEach((img) => formData.append("images", img));
             className="hidden"
           />
           <div className="text-4xl mb-2">⬆️</div>
-          <p className="text-gray-700">Choose up to 4 images</p>
-          <p className="text-xs mt-2 text-gray-500 text-center">
+          <p className="text-white text-sm">Choose up to 4 images</p>
+          <p className="text-xs mt-2 text-gray-400 text-center">
             High quality JPG/PNG/WebP files recommended
           </p>
         </label>
 
-        {/* Right: Form Section */}
+        {/* Form Section */}
         <div className="w-full md:w-1/2 space-y-4">
           <input
             type="text"
             placeholder="Add a title or content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none"
+            className="w-full border border-gray-600 bg-zinc-800 text-white rounded-md px-4 py-2 focus:outline-none"
           />
 
-          <label>
+          <label className="block">
             <input
               type="file"
               accept=".js, .py, .txt, .md"
               onChange={handleCodeFileChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none"
+              className="w-full border border-gray-600 bg-zinc-800 text-white rounded-md px-4 py-2 focus:outline-none"
             />
-            <div>
-              <p className="text-sm text-gray-700">Add a code file</p>
+            <div className="mt-1">
+              <p className="text-sm text-white">Add a code file</p>
               <p className="text-sm text-gray-400">
                 Accepted formats: .js, .py, .txt, .md
               </p>
@@ -110,7 +108,7 @@ images.forEach((img) => formData.append("images", img));
           <div className="flex items-center space-x-4">
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
             >
               Save
             </button>
@@ -121,7 +119,7 @@ images.forEach((img) => formData.append("images", img));
                 setCodeFile(null);
                 setImages([]);
               }}
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
+              className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 transition"
             >
               Cancel
             </button>

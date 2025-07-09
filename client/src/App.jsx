@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 
 import { store } from "./Redux/store";
 import { socket } from "./socket";
-
+import PublicUserProfile from "../src/pages/PublicUserProfile"
 import Login from "./authorizationpages/Login";
 import Signup from "./authorizationpages/Signup";
 import ProtectedRoutes from "./ProtectedRoutes";
@@ -40,6 +40,7 @@ function AnimatedRoutes() {
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
 
         <Route
           path="/dashboard"
@@ -115,6 +116,14 @@ function AnimatedRoutes() {
           <Profile/>
           </ProtectedRoutes>
         }/>
+
+        <Route path="/profile/:userId" element={
+          <ProtectedRoutes>
+          <PublicUserProfile />
+          </ProtectedRoutes>
+          } />
+
+
       </Routes>
     </AnimatePresence>
   );

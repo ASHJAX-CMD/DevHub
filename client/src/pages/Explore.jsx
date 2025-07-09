@@ -16,13 +16,14 @@ const Explore = () => {
       <SearchProfile />
       <div className="space-y-4">
        {searchResults.length === 0 ? (
-    <p className="text-lg">Searching for a FriLoper ?</p>
+    <p className="text-white text-center text-lg">Searching for a FriLoper ?</p>
   ) : (
-    <div className="bg-white p-4 rounded-xl shadow">
-      <p className="text-md font-semibold mb-2 text-gray-700">Search Results:</p>
-      <div className="space-y-2">
+    <div className="bg-black p-2 rounded-xl shadow">
+      <p className="text-md font-semibold mb-2 text-gray-300">Search Results:</p>
+      <div className="space-y-2 p-2 bg-black rounded-xl ">
         {searchResults.map((user) => (
           <motion.div 
+          
            whileHover={{ scale: 1.02 }}
           onClick={()=>{
              dispatch(setReceiverId(user._id));
@@ -30,8 +31,8 @@ const Explore = () => {
             navigate('/dashboard/direct-message')
             }}
             
-          key={user._id} className="border-b cursor-pointer p-6 pb-2">
-            <p className="font-medium">{user.fullName}</p>
+          key={user._id} className="border bg-black cursor-pointer md:p-4 p-3 rounded-2xl pb-2">
+            <p className="font-medium text-white">{user.fullName}</p>
             <p className="text-sm text-gray-500">@{user.username}</p>
             {console.log(user._id)}
           </motion.div>
