@@ -68,11 +68,7 @@ const PublicUserProfile = () => {
                   <div>
                     
                     <img
-                      src={
-                        userId?.profileImage
-                          ? `${API_URL}/uploads/${userId.profileImage}`
-                          : "/media/2.png"
-                      }
+                      src={useer.profileImage}
                       alt="Profile"
                       className="w-full h-full object-cover rounded-full border"
                     />
