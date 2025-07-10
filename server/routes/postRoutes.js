@@ -1,22 +1,40 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../middleware/upload");
-const toggleShare = require("../controllers/shareController");
+
+const upload = require("../middleware/upload"); // ✅ No destructuring
 const verifyToken = require("../middleware/verifyToken");
-const createPost = require("../controllers/createPost"); // Not destructured
-const {fetchPost,  userFetchPost} = require("../controllers/fetchPost"); // Not destructured
-const Post = require("../models/post"); 
-const toggleLike = async (req, res) => {
+const createPost = require("../controllers/createPost");
+const { fetchPost, userFetchPost } = require("../controllers/fetchPost");
+const toggleShare = require("../controllers/shareController");
+const Post = require("../models/post");
+
+// ✅ Create Post
+router.post(
+  "/create",
+  verifyToken,
+  upload.fields([
+    { name: "images", maxCount: 4 },
+    { name: "file", maxCount: 1 }
+  ]),
+  createPost
+);
+
+// ✅ Fetch all posts
+router.get("/fetch", verifyToken, fetchPost);
+
+// ✅ Fetch posts by current user
+router.get("/userPosts", verifyToken, userFetchPost);
+
+// ✅ Like / Unlike a post
+router.put("/:postId/like", verifyToken, async (req, res) => {
   const { postId } = req.params;
-  const userId = req.userId; // Assuming JWT middleware sets req.userId
+  const userId = req.userId;
 
   try {
     const post = await Post.findById(postId);
-
     if (!post) return res.status(404).json({ msg: "Post not found" });
 
     const hasLiked = post.likes.includes(userId);
-
     if (hasLiked) {
       post.likes.pull(userId);
     } else {
@@ -33,13 +51,9 @@ const toggleLike = async (req, res) => {
   } catch (err) {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
-};
-// POST /api/posts/create
-router.post("/create",verifyToken,upload, createPost);
-router.get("/fetch",verifyToken,fetchPost);
-router.put("/:postId/like", verifyToken, toggleLike);
+});
 
-router.get("/userPosts",verifyToken,userFetchPost)
- router.post("/:postId/share", verifyToken, toggleShare);
+// ✅ Share Post
+router.post("/:postId/share", verifyToken, toggleShare);
 
 module.exports = router;

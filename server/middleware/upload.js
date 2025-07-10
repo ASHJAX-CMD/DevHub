@@ -1,10 +1,10 @@
 const multer = require("multer");
 const path = require("path");
 
-// Setup multer storage
+// Setup storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Make sure this folder exists
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
     const uniqueName = Date.now() + "-" + file.originalname;
@@ -12,23 +12,19 @@ const storage = multer.diskStorage({
   }
 });
 
-// File type validation
+// Allowed extensions
 const allowedExtensions = [".js", ".jsx", ".ts", ".tsx", ".py", ".c", ".cpp", ".java", ".txt", ".md"];
 
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
-
-  if (allowedExtensions.includes(ext)) {
+  if (allowedExtensions.includes(ext) || file.fieldname === "images") {
     cb(null, true);
   } else {
     cb(new Error("Unsupported file type"), false);
   }
 };
 
-// ✅ Export directly the middleware function
-const upload = multer({ storage, fileFilter }).fields([
-  { name: "images", maxCount: 4 },
-  { name: "file", maxCount: 1 }
-]);
+// ✅ Export multer instance
+const upload = multer({ storage, fileFilter });
 
 module.exports = upload;
