@@ -14,29 +14,43 @@ export default function Signup() {
   const [fullName, setFullname] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!username || !email || !password || !fullName) {
-      return alert("Please fill in all fields");
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    setIsLoading(true);
-    const response = await dispatch(
-      registerUser({ email, username, fullName, password })
-    );
-    setIsLoading(false);
+  if (!username || !email || !password || !fullName) {
+    return alert("Please fill in all fields");
+  }
 
-    if (registerUser.fulfilled.match(response)) {
-      const user = response.payload;
-      localStorage.setItem("token", user.token);
-      socket.emit("register", user._id);
-      alert(`Registration Successful ${user.username}! Redirecting...`);
-      navigate("/");
-    } else {
-      console.error("Registration failed:", response.payload);
-      alert(response.payload || "Registration failed");
-    }
-  };
+  if (username.length < 4) {
+    return alert("Username must be at least 4 characters");
+  }
+
+  if (fullName.length < 4) {
+    return alert("Full name must be at least 4 characters");
+  }
+
+  if (password.length < 8) {
+    return alert("Password must be at least 8 characters");
+  }
+
+  setIsLoading(true);
+  const response = await dispatch(
+    registerUser({ email, username, fullName, password })
+  );
+  setIsLoading(false);
+
+  if (registerUser.fulfilled.match(response)) {
+    const user = response.payload;
+    localStorage.setItem("token", user.token);
+    socket.emit("register", user._id);
+    alert(`Registration Successful ${user.username}! Redirecting...`);
+    navigate("/");
+  } else {
+    console.error("Registration failed:", response.payload);
+    alert(response.payload || "Registration failed");
+  }
+};
+
 
   return (
     <div className="relative flex items-center justify-center min-h-screen w-full">

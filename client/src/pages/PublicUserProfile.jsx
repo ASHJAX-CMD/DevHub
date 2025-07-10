@@ -85,6 +85,7 @@ const PublicUserProfile = () => {
                 </label>
                 <p className="mt-1 text-white text-m font-semibold border border-gray-900 px-3 py-2 rounded-md">
                   {useer.username}
+                  
                 </p>
               </div>
 
@@ -142,7 +143,9 @@ const PublicUserProfile = () => {
                   likesCount={post.likesCount}
                   likedByUser={post.likedByUser}
                 />
+                {console.log(post.likesCount)}
               </div>
+              
             ))}
           </div>
         </div>
