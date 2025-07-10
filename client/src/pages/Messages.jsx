@@ -9,7 +9,6 @@ const Messages = () => {
   const [chatUsers, setChatUsers] = useState([]);
   const senderId = useSelector((state) => state.auth.user?._id);
   const onlineUsers = useSelector((state) => state.online.onlineUsers);
-
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -38,21 +37,29 @@ const Messages = () => {
         }`}
       >
         <SearchProfile />
-        {chatUsers.map((user) => {
-          const isOnline = onlineUsers.includes(user._id);
-          return (
-            <div
-              key={user._id}
-              className={`relative p-3 border rounded-lg bg-black shadow hover:bg-gray-900 cursor-pointer ${
-                user._id === senderId ? "border-blue-500" : ""
-              } ${isOnline ? "border-green-500" : ""}`}
-              onClick={() => setReceiverId(user._id)}
-            >
-              <p className="font-semibold text-white">{user.username}</p>
-              <p className="text-sm text-gray-400">{user.email}</p>
-            </div>
-          );
-        })}
+
+        {/* ✅ Show a message when there are no chat users */}
+        {chatUsers.length === 0 ? (
+          <div className="text-gray-500 text-center mt-10">
+             No chats yet. 🔍 Search someone to message.
+          </div>
+        ) : (
+          chatUsers.map((user) => {
+            const isOnline = onlineUsers.includes(user._id);
+            return (
+              <div
+                key={user._id}
+                className={`relative p-3 border rounded-lg bg-black shadow hover:bg-gray-900 cursor-pointer ${
+                  user._id === senderId ? "border-blue-500" : ""
+                } ${isOnline ? "border-green-500" : ""}`}
+                onClick={() => setReceiverId(user._id)}
+              >
+                <p className="font-semibold text-white">{user.username}</p>
+                <p className="text-sm text-gray-400">{user.email}</p>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* RIGHT: Messages Panel */}
