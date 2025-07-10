@@ -56,6 +56,8 @@ export const toggleFollow = createAsyncThunk(
       ? `/api/follow/unfollow/${userId}`
       : `/api/follow/follow/${userId}`;
 
+console.log("👉 toggleFollow: userId =", userId);
+
     await API.put(url, {}, authHeader());
     return { userId, isFollowing: !isCurrentlyFollowing };
   }
@@ -119,21 +121,38 @@ const postSlice = createSlice({
       })
 
       // Follow / Unfollow
-      .addCase(toggleFollow.fulfilled, (state, action) => {
-        const { userId, isFollowing } = action.payload;
-        state.allPosts = state.allPosts.map((post) => {
-          if (post.userId._id === userId) {
-            return {
-              ...post,
-              userId: {
-                ...post.userId,
-                isFollowing,
-              },
-            };
-          }
-          return post;
-        });
-      })
+.addCase(toggleFollow.fulfilled, (state, action) => {
+  const { userId, isFollowing } = action.payload;
+
+  // 🔁 Update in allPosts
+  state.allPosts = state.allPosts.map((post) => {
+    if (post.userId._id === userId) {
+      return {
+        ...post,
+        userId: {
+          ...post.userId,
+          isFollowing,
+        },
+      };
+    }
+    return post;
+  });
+
+  // 🔁 Also update in userPosts
+  state.userPosts = state.userPosts.map((post) => {
+    if (post.userId._id === userId) {
+      return {
+        ...post,
+        userId: {
+          ...post.userId,
+          isFollowing,
+        },
+      };
+    }
+    return post;
+  });
+})
+
 
       // Share Post
       .addCase(sharePost.fulfilled, (state, action) => {

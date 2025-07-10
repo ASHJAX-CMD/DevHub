@@ -114,14 +114,14 @@ const PostProfile = ({
               </p>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={handleFollowToggle}
             className={`font-semibold hover:underline ${
               userId?.isFollowing ? "text-gray-600" : "text-green-600"
             }`}
           >
             {userId?.isFollowing ? "Following" : "Follow"}
-          </button>
+          </button> */}
         </div>
 
         {/* Content Area */}
@@ -183,7 +183,7 @@ const PostProfile = ({
 
       {/* Comments Section */}
       {showComments && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-90 p-2 flex flex-col rounded-xl w-full">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-70 p-2 flex flex-col rounded-xl w-full">
           <button
             onClick={() => setShowComments(false)}
             className="text-gray-400 self-end mb-2 text-s"

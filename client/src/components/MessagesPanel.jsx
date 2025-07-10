@@ -76,7 +76,11 @@ const MessagesPanel = ({ receiver }) => {
       className={`${receiver ? "h-full" : "h-screen"} bg-contain rounded-xl bg-inherit bg-center`}
       style={{ backgroundImage: 'url("/media2/2.png")', }}
     >
-      <div className="max-w-2xl bg-black h-full flex flex-col p-4 rounded-3xl border-gray-300 mx-auto">
+      <div className={`max-w-2xl bg-black h-full flex flex-col   rounded-3xl border-gray-300 mx-auto  ${
+    location.pathname.includes("/direct-message")
+      ? "p-6"
+      : ""
+  }`}>
         {/* 🔙 Mobile Back Button */}
         <div className="md:hidden border-b mb-4">
           <button
@@ -110,7 +114,7 @@ const MessagesPanel = ({ receiver }) => {
         </div>
 
         {/* 📤 Message Input */}
-        <div className="md:pb-0 md:pt-2 pt-2 pb-5">
+        <div className="md:pb-0  mb-9 md:pt-2 pt-2 ">
           <MessageSender
             socket={socket}
             setMessages={setMessages}
