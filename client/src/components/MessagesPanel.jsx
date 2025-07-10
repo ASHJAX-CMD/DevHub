@@ -6,7 +6,7 @@ import { socket } from "../socket";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import chatBg from "../media/2.png";
+// import chatBg from "../media2/2.png";
 
 const MessagesPanel = ({ receiver }) => {
   const [messages, setMessages] = useState([]);
@@ -74,7 +74,7 @@ const MessagesPanel = ({ receiver }) => {
       animate={{ x: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 30, duration: 0.5 }}
       className={`${receiver ? "h-full" : "h-screen"} bg-contain rounded-xl bg-inherit bg-center`}
-      style={{ backgroundImage: `url(${chatBg})` }}
+      style={{ backgroundImage: 'url("/media2/2.png")', }}
     >
       <div className="max-w-2xl bg-black h-full flex flex-col p-4 rounded-3xl border-gray-300 mx-auto">
         {/* 🔙 Mobile Back Button */}
