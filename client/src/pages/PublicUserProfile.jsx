@@ -65,15 +65,17 @@ const PublicUserProfile = () => {
             <div className="w-full md:w-1/3 flex flex-col items-start">
               <div className="w-20 h-20 md:w-32 md:h-32">
                 {useer.profileImage ? (
-                  <div>
-                    
-                    <img
-                      src={useer.profileImage}
-                      alt="Profile"
-                      className="w-full h-full object-cover rounded-full border"
-                    />
-                    {console.log(useer.profileImage)}
-                  </div>
+                  <img
+                    src={
+                      useer.profileImage?.startsWith("http")
+                        ? useer.profileImage
+                        : `${import.meta.env.VITE_API_URL}/uploads/profile/${
+                            useer.profileImage
+                          }`
+                    }
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full border"
+                  />
                 ) : (
                   <div className="w-full h-full bg-gray-900 flex items-center justify-center rounded-full">
                     <CgProfile className=" font-thin w-full h-full text-black" />
