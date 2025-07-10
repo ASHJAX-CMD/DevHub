@@ -78,8 +78,8 @@ const MessagesPanel = ({ receiver }) => {
     >
       <div className={`max-w-2xl bg-black h-full flex flex-col   rounded-3xl border-gray-300 mx-auto  ${
     location.pathname.includes("/direct-message")
-      ? "p-6"
-      : ""
+      ? "p-6 md:p-0"
+      : " md:p-0"
   }`}>
         {/* 🔙 Mobile Back Button */}
         <div className="md:hidden border-b mb-4">
@@ -93,7 +93,7 @@ const MessagesPanel = ({ receiver }) => {
         </div>
 
         {/* 💬 Message List */}
-        <div className="flex-1 space-y-3 overflow-y-auto scrollbar-none">
+        <div className="flex-1 space-y-3 p-2 overflow-y-auto scrollbar-none">
           {messages.map((msg, index) => {
             const isSender = msg.sender === senderId;
             return (
@@ -114,7 +114,7 @@ const MessagesPanel = ({ receiver }) => {
         </div>
 
         {/* 📤 Message Input */}
-        <div className="md:pb-0  mb-9 md:pt-2 pt-2 ">
+        <div className="md:pb-0 p-2 mb-9 md:mb-2 md:pt-2 pt-2 ">
           <MessageSender
             socket={socket}
             setMessages={setMessages}
