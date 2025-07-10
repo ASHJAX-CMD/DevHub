@@ -44,10 +44,14 @@ app.put("/api/users/update-profile-info", verifyToken, async (req, res) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://dev-hub-swart-eight.vercel.app",
+    ],
     credentials: true,
   },
 });
+
   
 // Attach io to req
 app.use((req, res, next) => {
