@@ -1,15 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Async thunk for searching users
+// ✅ Axios instance with dynamic base URL
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+// 🔍 Async thunk for searching users
 export const searchUsers = createAsyncThunk(
   'search/searchUsers',
   async (username, { rejectWithValue }) => {
     try {
-      const res = await axios.get('http://localhost:5000/api/users/search', {
+      const res = await API.get('/api/users/search', {
         params: { username },
       });
-      return res.data; // array of matched users
+      return res.data; // matched users
     } catch (err) {
       return rejectWithValue(err.response?.data || 'Server error');
     }
@@ -19,7 +24,7 @@ export const searchUsers = createAsyncThunk(
 const searchSlice = createSlice({
   name: 'search',
   initialState: {
-    searchResults: [],   // renamed from `users`
+    searchResults: [],
     loading: false,
     error: null,
   },
@@ -28,7 +33,7 @@ const searchSlice = createSlice({
       state.searchResults = [];
       state.loading = false;
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -46,6 +51,6 @@ const searchSlice = createSlice({
       });
   },
 });
-export const { clearSearchResults } = searchSlice.actions;
 
+export const { clearSearchResults } = searchSlice.actions;
 export default searchSlice.reducer;

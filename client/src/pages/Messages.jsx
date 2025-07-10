@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MessagesPanel from "../components/MessagesPanel";
 import SearchProfile from "../components/SearchProfile";
-import { ArrowLeft } from "lucide-react"; // icon for back
 
 const Messages = () => {
   const [reciverId, setReceiverId] = useState(null);
@@ -12,11 +10,13 @@ const Messages = () => {
   const senderId = useSelector((state) => state.auth.user?._id);
   const onlineUsers = useSelector((state) => state.online.onlineUsers);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchChatUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/messages/chat-users", {
+        const res = await axios.get(`${API_URL}/api/messages/chat-users`, {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
         });
@@ -27,7 +27,7 @@ const Messages = () => {
     };
 
     fetchChatUsers();
-  }, []);
+  }, [API_URL]);
 
   return (
     <div className="flex h-screen bg-black overflow-hidden">
@@ -61,9 +61,6 @@ const Messages = () => {
           reciverId ? "block" : "hidden md:block"
         }`}
       >
-        {/* Mobile Back Button */}
-
-
         {reciverId ? (
           <MessagesPanel receiver={reciverId} />
         ) : (

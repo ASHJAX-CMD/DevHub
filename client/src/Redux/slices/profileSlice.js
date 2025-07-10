@@ -1,15 +1,27 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// ✅ Shared Axios instance with base URL
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+// ✅ Auth header helper
+const authHeader = () => {
+  const token = localStorage.getItem("token");
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
 // 📥 Fetch current profile data
 export const fetchUserProfile = createAsyncThunk(
   "profile/fetchUserProfile",
   async (_, thunkAPI) => {
     try {
-      const token = localStorage.getItem("token"); // ✅ get token at runtime
-      const res = await axios.get("http://localhost:5000/api/userprofile/currentuserprofile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await API.get("/api/userprofile/currentuserprofile", authHeader());
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(
@@ -24,13 +36,10 @@ export const updateProfileInfo = createAsyncThunk(
   "profile/updateProfileInfo",
   async ({ fullName, bio }, thunkAPI) => {
     try {
-      const token = localStorage.getItem("token"); // ✅
-      const res = await axios.put(
-        "http://localhost:5000/api/users/update-profile-info",
+      const res = await API.put(
+        "/api/users/update-profile-info",
         { fullName, bio },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        authHeader()
       );
       return res.data;
     } catch (err) {
@@ -46,16 +55,15 @@ export const updateProfileImage = createAsyncThunk(
   "profile/updateProfileImage",
   async (file, thunkAPI) => {
     try {
-      const token = localStorage.getItem("token"); // ✅
       const formData = new FormData();
       formData.append("profileImage", file);
 
-      const res = await axios.put(
-        "http://localhost:5000/api/userprofile/update-profile-image",
+      const res = await API.put(
+        "/api/userprofile/update-profile-image",
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "multipart/form-data",
           },
         }

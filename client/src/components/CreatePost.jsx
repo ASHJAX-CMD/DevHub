@@ -4,7 +4,8 @@ export default function CreatePost() {
   const [content, setContent] = useState("");
   const [codeFile, setCodeFile] = useState(null);
   const [images, setImages] = useState([]);
-  const [userId, setUserId] = useState("YOUR_USER_ID_HERE");
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -33,17 +34,18 @@ export default function CreatePost() {
     images.forEach((img) => formData.append("images", img));
 
     try {
-      const res = await fetch("http://localhost:5000/api/posts/create", {
+      const res = await fetch(`${API_URL}/api/posts/create`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: formData,
       });
+
       const data = await res.json();
 
       if (res.ok) {
-        alert("Post created successfully!");
+        alert("✅ Post created successfully!");
         setContent("");
         setCodeFile(null);
         setImages([]);
@@ -51,7 +53,7 @@ export default function CreatePost() {
         alert(data.error || "Something went wrong.");
       }
     } catch (err) {
-      console.error("Submit error:", err);
+      console.error("❌ Submit error:", err);
       alert("Network error.");
     }
   };
@@ -64,7 +66,7 @@ export default function CreatePost() {
         onSubmit={handleSubmit}
         className="flex flex-col md:flex-row bg-zinc-900 shadow rounded-lg p-6 gap-6"
       >
-        {/* Upload Section */}
+        {/* Upload Images */}
         <label className="w-full md:w-1/2 flex flex-col items-center justify-center border border-gray-600 rounded-md p-4 cursor-pointer hover:bg-zinc-800 transition">
           <input
             type="file"

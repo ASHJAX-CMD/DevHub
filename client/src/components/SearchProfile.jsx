@@ -12,9 +12,11 @@ const SearchProfile = () => {
   const dispatch = useDispatch();
 
   const [input, setInput] = useState("");
-  const { user } = useSelector((state) => state.auth); // ✅ Pulling from auth slice
+  const { user } = useSelector((state) => state.auth);
   const username = user?.username || "User";
   const profileImage = user?.profileImage;
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     dispatch(clearSearchResults());
@@ -66,7 +68,7 @@ const SearchProfile = () => {
           >
             {profileImage ? (
               <img
-                src={`http://localhost:5000/uploads/profile/${profileImage}?t=${Date.now()}`} // ✅ Cache-busting
+                src={`${API_URL}/uploads/profile/${profileImage}?t=${Date.now()}`}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />

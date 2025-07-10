@@ -25,6 +25,8 @@ const PostCard = ({
   const { user } = useSelector((state) => state.auth);
   const currentUserId = user?._id;
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const handleShare = () => {
     dispatch(sharePost({ postId }));
     const shareUrl = `${window.location.origin}/post/${postId}`;
@@ -52,7 +54,7 @@ const PostCard = ({
   useEffect(() => {
     const fetchFile = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/uploads/${file}`);
+        const res = await axios.get(`${API_URL}/uploads/${file}`);
         setCode(res.data);
       } catch (err) {
         console.error("Failed to fetch code:", err);
@@ -60,7 +62,7 @@ const PostCard = ({
       }
     };
     if (file) fetchFile();
-  }, [file]);
+  }, [file, API_URL]);
 
   useEffect(() => {
     setShared(false);
@@ -71,7 +73,6 @@ const PostCard = ({
     return str.charAt(0).toUpperCase();
   };
 
-  // ✅ Profile link logic
   const getProfileLink = (publicId, currentId) => {
     return publicId === currentId ? "/profile" : `/profile/${publicId}`;
   };
@@ -106,7 +107,7 @@ const PostCard = ({
               <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 flex items-center justify-center text-sm font-bold bg-black text-white">
                 {userId?.profileImage ? (
                   <img
-                    src={`http://localhost:5000/uploads/profile/${userId.profileImage}`}
+                    src={`${API_URL}/uploads/profile/${userId.profileImage}`}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
@@ -150,7 +151,7 @@ const PostCard = ({
               images.map((img, i) => (
                 <img
                   key={i}
-                  src={`http://localhost:5000/uploads/${img}`}
+                  src={`${API_URL}/uploads/${img}`}
                   alt={`Post image ${i}`}
                   className="rounded max-h-56 object-cover w-full"
                 />
@@ -199,7 +200,6 @@ const PostCard = ({
             flex flex-col rounded-xl w-full md:w-[30vw] md:max-h-auto md:h-auto
           `}
         >
-          {/* Close (mobile only) */}
           <button
             onClick={() => setShowComments(false)}
             className="text-gray-400 self-end mb-2 text-s md:hidden"

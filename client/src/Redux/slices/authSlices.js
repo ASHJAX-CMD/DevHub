@@ -13,7 +13,7 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ email, username, fullName, password }, thunkAPI) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         email,
         username,
         fullName,
@@ -34,7 +34,7 @@ export const fetchUserProfile = createAsyncThunk(
   "auth/fetchUserProfile",
   async ({ email, password }, thunkAPI) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         email,
         password,
       });

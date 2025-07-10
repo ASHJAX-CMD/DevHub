@@ -12,33 +12,36 @@ const PublicUserProfile = () => {
   const [useer, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const { user } = useSelector((state) => state.auth);
-useEffect(() => {
-  const fetchUserData = async () => {
-    try {
-      const token = localStorage.getItem("token");
 
-      const res = await axios.get(`http://localhost:5000/api/userprofile/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const API_URL = import.meta.env.VITE_API_URL;
 
-      const publicUser = res.data.user;
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${API_URL}/api/userprofile/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      // 🛠️ Redirect if user is viewing their own profile
+        const publicUser = res.data.user;
+        setUser(publicUser);
+        setPosts(res.data.posts);
+      } catch (err) {
+        console.error("❌ Failed to fetch user:", err);
+      }
+    };
 
-      setUser(publicUser);
-      setPosts(res.data.posts);
-    } catch (err) {
-      console.error("❌ Failed to fetch user:", err);
-    }
-  };
-
-  fetchUserData();
-}, [userId, user, navigate]);
+    fetchUserData();
+  }, [userId, user, navigate, API_URL]);
 
   if (!useer) {
-    return <div className="text-center pt-20 text-lg text-white">Loading user profile...</div>;
+    return (
+      <div className="text-center pt-20 text-lg text-white">
+        Loading user profile...
+      </div>
+    );
   }
 
   return (
@@ -63,7 +66,7 @@ useEffect(() => {
                 <img
                   src={
                     useer.profileImage
-                      ? `http://localhost:5000/uploads/profile/${useer.profileImage}`
+                      ? `${API_URL}/uploads/profile/${useer.profileImage}`
                       : "/media/logo2.png"
                   }
                   alt="Profile"
@@ -75,21 +78,27 @@ useEffect(() => {
             {/* Right: Read-Only Info */}
             <div className="w-full md:w-2/3 flex flex-col space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white">Username</label>
+                <label className="block text-sm font-medium text-white">
+                  Username
+                </label>
                 <p className="mt-1 text-white text-m font-semibold border border-gray-900 px-3 py-2 rounded-md">
                   {useer.username}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white">Full Name</label>
+                <label className="block text-sm font-medium text-white">
+                  Full Name
+                </label>
                 <p className="mt-1 text-white px-3 py-2 border border-gray-900 rounded-md">
                   {useer.fullName}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white">Bio</label>
+                <label className="block text-sm font-medium text-white">
+                  Bio
+                </label>
                 <p className="mt-1 text-white px-3 py-2 border border-gray-900 rounded-md">
                   {useer.bio}
                 </p>

@@ -1,6 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// 🌐 Dynamic API base URL for production + local
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
 // Helper to get auth headers
 const authHeader = () => {
   const token = localStorage.getItem("token");
@@ -16,10 +21,7 @@ export const fetchComments = createAsyncThunk(
   "comments/fetchComments",
   async (postId) => {
     console.log("🟡 Fetching comments for postId:", postId);
-    const response = await axios.get(
-      `http://localhost:5000/api/comments/${postId}`,
-      authHeader()
-    );
+    const response = await API.get(`/api/comments/${postId}`, authHeader());
     console.log("🟢 Fetched comments:", response.data);
     return { postId, comments: response.data };
   }
@@ -30,8 +32,8 @@ export const addComment = createAsyncThunk(
   "comments/addComment",
   async ({ postId, text }) => {
     console.log("🟡 Adding comment:", { postId, text });
-    const response = await axios.post(
-      "http://localhost:5000/api/comments",
+    const response = await API.post(
+      "/api/comments",
       { postId, text },
       authHeader()
     );
@@ -45,10 +47,7 @@ export const deleteComment = createAsyncThunk(
   "comments/deleteComment",
   async (commentId) => {
     console.log("🟡 Deleting comment:", commentId);
-    await axios.delete(
-      `http://localhost:5000/api/comments/${commentId}`,
-      authHeader()
-    );
+    await API.delete(`/api/comments/${commentId}`, authHeader());
     console.log("🟢 Comment deleted:", commentId);
     return commentId;
   }
@@ -68,7 +67,6 @@ const commentSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch Comments
       .addCase(fetchComments.pending, (state) => {
         console.log("⏳ Fetch comments pending");
         state.loading = true;
@@ -86,7 +84,6 @@ const commentSlice = createSlice({
         state.error = "Failed to load comments";
       })
 
-      // Add Comment
       .addCase(addComment.fulfilled, (state, action) => {
         console.log("✅ Comment added to Redux state:", action.payload);
         const comment = action.payload;
@@ -97,7 +94,6 @@ const commentSlice = createSlice({
         state.commentsByPost[postId].unshift(comment);
       })
 
-      // Delete Comment
       .addCase(deleteComment.fulfilled, (state, action) => {
         console.log("✅ Comment deleted from Redux state:", action.payload);
         const commentId = action.payload;

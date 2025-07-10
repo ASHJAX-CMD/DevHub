@@ -1,18 +1,27 @@
-// Redux/slices/postSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-//share count fetcher
+// ✅ Axios instance with dynamic base URL
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
+// ✅ Auth header helper
+const authHeader = () => {
+  const token = localStorage.getItem("token");
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
+// 📤 Share post
 export const sharePost = createAsyncThunk(
   "posts/sharePost",
   async ({ postId }, { rejectWithValue }) => {
-    const token = localStorage.getItem("token");
     try {
-      await axios.post(
-        `http://localhost:5000/api/posts/${postId}/share`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await API.post(`/api/posts/${postId}/share`, {}, authHeader());
       return { postId };
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -22,24 +31,16 @@ export const sharePost = createAsyncThunk(
 
 // ✅ Fetch all posts
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
-  const token = localStorage.getItem("token");
-  const res = await axios.get("http://localhost:5000/api/posts/fetch", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await API.get("/api/posts/fetch", authHeader());
   return res.data;
 });
-// 👇 Add below your other imports
+
+// 👤 Fetch current user's posts
 export const fetchUserPosts = createAsyncThunk(
   "posts/fetchUserPosts",
   async (_, { rejectWithValue }) => {
-    const token = localStorage.getItem("token");
     try {
-      const res = await axios.get("http://localhost:5000/api/posts/userPosts", {
-        headers: {
-          Authorization: `Bearer ${token}` },
-      });
+      const res = await API.get("/api/posts/userPosts", authHeader());
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || err.message);
@@ -47,42 +48,28 @@ export const fetchUserPosts = createAsyncThunk(
   }
 );
 
-// ✅ Follow / Unfollow
+// 🔁 Follow / Unfollow
 export const toggleFollow = createAsyncThunk(
   "posts/toggleFollow",
   async ({ userId, isCurrentlyFollowing }) => {
-    const token = localStorage.getItem("token");
     const url = isCurrentlyFollowing
-      ? `http://localhost:5000/api/follow/unfollow/${userId}`
-      : `http://localhost:5000/api/follow/follow/${userId}`;
+      ? `/api/follow/unfollow/${userId}`
+      : `/api/follow/follow/${userId}`;
 
-    await axios.put(
-      url,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
+    await API.put(url, {}, authHeader());
     return { userId, isFollowing: !isCurrentlyFollowing };
   }
 );
 
-// ✅ Like / Unlike a post
+// ❤️ Like / Unlike
 export const toggleLike = createAsyncThunk(
   "posts/toggleLike",
   async ({ postId }, { rejectWithValue }) => {
-    const token = localStorage.getItem("token");
-
     try {
-      const res = await axios.put(
-        `http://localhost:5000/api/posts/${postId}/like`,
+      const res = await API.put(
+        `/api/posts/${postId}/like`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        authHeader()
       );
       return { postId, ...res.data };
     } catch (err) {
@@ -95,7 +82,7 @@ const postSlice = createSlice({
   name: "posts",
   initialState: {
     allPosts: [],
-    userPosts: [], // ✅ NEW
+    userPosts: [],
     loading: false,
     error: null,
   },
@@ -103,7 +90,7 @@ const postSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch Posts
+      // Fetch All Posts
       .addCase(fetchPosts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -116,7 +103,8 @@ const postSlice = createSlice({
         state.loading = false;
         state.error = "Failed to fetch posts";
       })
-      // ✅ Fetch user's own posts
+
+      // Fetch User Posts
       .addCase(fetchUserPosts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -146,7 +134,8 @@ const postSlice = createSlice({
           return post;
         });
       })
-         //share
+
+      // Share Post
       .addCase(sharePost.fulfilled, (state, action) => {
         const { postId } = action.payload;
         const post = state.allPosts.find((p) => p._id === postId);

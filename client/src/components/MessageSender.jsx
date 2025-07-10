@@ -9,35 +9,30 @@ const MessageSender = ({
   setReloadTrigger,
 }) => {
   const [text, setText] = useState("");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSend = async (e) => {
     e.preventDefault();
     if (!text.trim()) return;
 
     const message = {
-      receiverId, // ✅ fixed key name
+      receiverId,
       text: text.trim(),
     };
 
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.post(
-        "http://localhost:5000/api/messages/send",
-        message,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await axios.post(`${API_URL}/api/messages/send`, message, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const savedMessage = res.data;
 
-      // 🔁 Emit to socket (including full message data)
       socket.emit("sendMessage", savedMessage);
 
-      // 💾 Update local state
       setMessages((prev) => [...prev, savedMessage]);
       setReloadTrigger((prev) => prev + 1);
       setText("");
@@ -52,7 +47,6 @@ const MessageSender = ({
 
   return (
     <form onSubmit={handleSend}>
-      {console.log("Sending from:", senderId, "to:", receiverId)}
       <div className="flex items-center gap-2">
         <input
           type="text"
