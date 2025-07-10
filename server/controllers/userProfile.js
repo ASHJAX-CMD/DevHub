@@ -21,21 +21,29 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-const PublicUser=  async (req, res) => {
+const PublicUser = async (req, res) => {
   try {
     const userId = req.params.id;
+    const viewerId = req.userId; // ← optional: for checking if current user liked a post
 
     const user = await User.findById(userId).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const posts = await Post.find({ userId }).sort({ createdAt: -1 });
+    const posts = await Post.find({ userId })
+      .sort({ createdAt: -1 })
+      .populate("userId", "username profileImage") // ✅ populate user data for frontend
 
-    res.status(200).json({ user, posts });
+    const enrichedPosts = posts.map((post) => ({
+      ...post.toObject(),
+      likesCount: post.likes?.length || 0,
+      likedByUser: post.likes?.includes(viewerId), // optional
+    }));
+
+    res.status(200).json({ user, posts: enrichedPosts });
   } catch (err) {
     console.error("Error fetching user profile:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 module.exports = {PublicUser,getUserProfile};
