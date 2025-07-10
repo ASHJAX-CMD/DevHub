@@ -31,6 +31,8 @@ const PublicUser = async (req, res) => {
 
     const posts = await Post.find({ userId })
       .sort({ createdAt: -1 })
+      .populate("followers", "username fullName") // only return selected fields
+      .populate("following", "username fullName")
       .populate("userId", "username profileImage") // ✅ populate user data for frontend
 
     const enrichedPosts = posts.map((post) => ({
