@@ -18,7 +18,7 @@ import Alert from "./pages/Alert";
 import Messages from "./pages/Messages";
 import MessagePanel from "./components/MessagesPanel";
 
-import SocketHandler from "./SocketHandler"; // ✅ custom component that handles socket + dispatch
+import SocketHandler from "./socketHandler"; // ✅ custom component that handles socket + dispatch
 import Profile from "./pages/Profile";
 
 const PageWrapper = ({ children }) => (
