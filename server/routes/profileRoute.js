@@ -14,8 +14,7 @@ router.put("/update-profile-image", verifyToken, profileUpload, async (req, res)
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    user.profileImage = `profile/${req.file.filename}`;
-
+    user.profileImage = req.file.filename;
     await user.save();
 
     res.json({ message: "✅ Profile image updated", profileImage: user.profileImage });
