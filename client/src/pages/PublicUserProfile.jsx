@@ -4,7 +4,7 @@ import axios from "axios";
 import { ArrowLeft } from "lucide-react";
 import PostProfile from "../components/PostsProfile";
 import { useSelector } from "react-redux";
-
+import { CgProfile } from "react-icons/cg";
 const PublicUserProfile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
@@ -63,15 +63,17 @@ const PublicUserProfile = () => {
             {/* Left: Profile Image */}
             <div className="w-full md:w-1/3 flex flex-col items-start">
               <div className="w-20 h-20 md:w-32 md:h-32">
-                <img
-                  src={
-                    useer.profileImage
-                      ? `${API_URL}/uploads/profile/${useer.profileImage}`
-                      : "/media/2.png"
-                  }
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded-full border"
-                />
+                {useer.profileImage ? (
+                  <img
+                    src={useer.profileImage}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full border"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-900 flex items-center justify-center rounded-full">
+                    <CgProfile className=" font-thin w-full h-full text-black" />
+                  </div>
+                )}
               </div>
             </div>
 

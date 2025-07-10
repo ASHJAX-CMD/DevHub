@@ -1,14 +1,14 @@
-import "./App.css";
-import { motion, AnimatePresence } from "framer-motion";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import React from "react";
 import { Provider } from "react-redux";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { store } from "./Redux/store";
-import { socket } from "./socket";
-import PublicUserProfile from "../src/pages/PublicUserProfile"
+import SocketHandler from "./socketHandler";
+import ProtectedRoutes from "./ProtectedRoutes";
+
 import Login from "./authorizationpages/Login";
 import Signup from "./authorizationpages/Signup";
-import ProtectedRoutes from "./ProtectedRoutes";
 
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
@@ -17,10 +17,10 @@ import Create from "./pages/Create";
 import Alert from "./pages/Alert";
 import Messages from "./pages/Messages";
 import MessagePanel from "./components/MessagesPanel";
-
-import SocketHandler from "./socketHandler"; // ✅ custom component that handles socket + dispatch
 import Profile from "./pages/Profile";
+import PublicUserProfile from "./pages/PublicUserProfile";
 
+// ✅ Reusable wrapper for page transitions
 const PageWrapper = ({ children }) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
@@ -32,16 +32,18 @@ const PageWrapper = ({ children }) => (
   </motion.div>
 );
 
-function AnimatedRoutes() {
+// ✅ Routes component with transitions, declared inside BrowserRouter
+const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        {/* 🔓 Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-
+        {/* 🔐 Protected Dashboard Routes */}
         <Route
           path="/dashboard"
           element={
@@ -56,16 +58,6 @@ function AnimatedRoutes() {
               <ProtectedRoutes>
                 <PageWrapper>
                   <Home />
-                </PageWrapper>
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="direct-message"
-            element={
-              <ProtectedRoutes>
-                <PageWrapper>
-                  <MessagePanel />
                 </PageWrapper>
               </ProtectedRoutes>
             }
@@ -90,7 +82,6 @@ function AnimatedRoutes() {
               </ProtectedRoutes>
             }
           />
-
           <Route
             path="messages"
             element={
@@ -105,35 +96,58 @@ function AnimatedRoutes() {
               path="chat/:userId"
               element={
                 <ProtectedRoutes>
-                  <MessagePanel />
+                  <PageWrapper>
+                    <MessagePanel />
+                  </PageWrapper>
                 </ProtectedRoutes>
               }
             />
           </Route>
+          <Route
+            path="direct-message"
+            element={
+              <ProtectedRoutes>
+                <PageWrapper>
+                  <MessagePanel />
+                </PageWrapper>
+              </ProtectedRoutes>
+            }
+          />
         </Route>
-        <Route path="/profile" element={
-          <ProtectedRoutes>
-          <Profile/>
-          </ProtectedRoutes>
-        }/>
 
-        <Route path="/profile/:userId" element={
-          <ProtectedRoutes>
-          <PublicUserProfile />
-          </ProtectedRoutes>
-          } />
+        {/* 👤 Profile Routes */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoutes>
+              <PageWrapper>
+                <Profile />
+              </PageWrapper>
+            </ProtectedRoutes>
+          }
+        />
 
-
+        <Route
+          path="/profile/:userId"
+          element={
+            <ProtectedRoutes>
+              <PageWrapper>
+                <PublicUserProfile />
+              </PageWrapper>
+            </ProtectedRoutes>
+          }
+        />
       </Routes>
     </AnimatePresence>
   );
-}
+};
 
+// ✅ Main App with BrowserRouter wrapping everything
 function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
-        <SocketHandler /> {/* ✅ socket logic now lives here */}
+        <SocketHandler />
         <AnimatedRoutes />
       </BrowserRouter>
     </Provider>

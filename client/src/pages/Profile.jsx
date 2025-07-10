@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { fetchUserPosts } from "../Redux/slices/postSlice";
 import PostProfile from "../components/PostsProfile";
-
+import { CgProfile } from "react-icons/cg";
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ const Profile = () => {
         setAvatarPreview(null);
       }
     }
-  }, [profile,API_URL]);
+  }, [profile, API_URL]);
 
   const handleSaveChanges = (e) => {
     e.preventDefault();
@@ -70,7 +70,11 @@ const Profile = () => {
   };
 
   if (loading || !profile) {
-    return <div className="text-center pt-20 text-lg text-white">Loading profile...</div>;
+    return (
+      <div className="text-center pt-20 text-lg text-white">
+        Loading profile...
+      </div>
+    );
   }
 
   return (
@@ -91,11 +95,18 @@ const Profile = () => {
             {/* Profile Image */}
             <div className="w-full md:w-1/3 flex flex-col items-start md:items-start">
               <div className="w-20 h-20 md:w-32 md:h-32 relative">
-                <img
-                  src={avatarPreview || "/media/2.png"}
-                  alt="Profile"
-                  className="w-full h-full object-cover rounded-full border"
-                />
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview}
+                    alt="Profile"
+                    className="w-full h-full object-cover rounded-full border"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-900 flex items-center justify-center rounded-full">
+                    <CgProfile className=" font-thin w-full h-full text-black" />
+                  </div>
+                )}
+
                 <button
                   className="absolute bottom-0 right-0 bg-gray-200 px-3 py-1 text-sm rounded-xl shadow"
                   onClick={() => fileInputRef.current.click()}
@@ -118,14 +129,18 @@ const Profile = () => {
               className="w-full md:w-2/3 flex flex-col space-y-4"
             >
               <div>
-                <label className="block text-sm font-medium text-white">Username</label>
+                <label className="block text-sm font-medium text-white">
+                  Username
+                </label>
                 <p className="mt-1 text-white text-m font-semibold border border-gray-900 px-3 py-2 rounded-md">
                   {profile.username}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white">Full Name</label>
+                <label className="block text-sm font-medium text-white">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   value={fullName}
@@ -138,7 +153,9 @@ const Profile = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white">Bio</label>
+                <label className="block text-sm font-medium text-white">
+                  Bio
+                </label>
                 <textarea
                   rows="3"
                   value={bio}
