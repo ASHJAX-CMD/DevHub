@@ -92,7 +92,7 @@ const Profile = () => {
             <div className="w-full md:w-1/3 flex flex-col items-start md:items-start">
               <div className="w-20 h-20 md:w-32 md:h-32 relative">
                 <img
-                  src={avatarPreview || "/media/logo2.png"}
+                  src={avatarPreview || "/media/2.png"}
                   alt="Profile"
                   className="w-full h-full object-cover rounded-full border"
                 />
