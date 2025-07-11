@@ -19,6 +19,7 @@ import Messages from "./pages/Messages";
 import MessagePanel from "./components/MessagesPanel";
 import Profile from "./pages/Profile";
 import PublicUserProfile from "./pages/PublicUserProfile";
+import Setting from "./pages/Setting";
 
 // ✅ Reusable wrapper for page transitions
 const PageWrapper = ({ children }) => (
@@ -78,6 +79,16 @@ const AnimatedRoutes = () => {
               <ProtectedRoutes>
                 <PageWrapper>
                   <Create />
+                </PageWrapper>
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoutes>
+                <PageWrapper>
+                  <Setting />
                 </PageWrapper>
               </ProtectedRoutes>
             }
