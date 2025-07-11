@@ -141,7 +141,7 @@ const PostCard = ({
           <div className="space-y-2">
             <p className="text-sm text-gray-300">{content}</p>
             <div className="text-xs text-blue-500">📄 File: {file}</div>
-            <div className="bg-black md:p-2 h-56 text-sm text-white border-b border-gray-200 whitespace-pre-wrap overflow-y-auto max-h-56 scrollbar-none">
+            <div className="bg-black md:p-2 text-sm text-white border-b border-gray-200 whitespace-pre-wrap overflow-y-auto max-h-56 scrollbar-none">
               {code}
             </div>
           </div>
@@ -153,7 +153,7 @@ const PostCard = ({
                   key={i}
                   src={`${API_URL}/uploads/${img}`}
                   alt={`Post image ${i}`}
-                  className="rounded max-h-56 object-cover w-full"
+                  className="rounded max-h-56 object-scale-down w-full"
                 />
               ))
             ) : (
