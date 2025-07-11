@@ -153,7 +153,7 @@ const PostCard = ({
                   key={i}
                   src={`${API_URL}/uploads/${img}`}
                   alt={`Post image ${i}`}
-                  className="rounded max-h-56 object-scale-down w-full"
+                  className="rounded max-h-56 object-contain "
                 />
               ))
             ) : (
