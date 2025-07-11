@@ -31,42 +31,36 @@ const MessagesPanel = ({ receiver }) => {
   }, [messages]);
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!receiverId || !senderId) return;
+  const fetchMessages = async () => {
+    if (!receiverId || !senderId) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/api/messages/chats/${receiverId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setMessages(res.data);
+    } catch (err) {
+      console.error("❌ Load failed:", err?.response?.data || err.message);
+    }
+  };
 
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${API_URL}/api/messages/chats/${receiverId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setMessages(res.data);
-      } catch (err) {
-        console.error("❌ Failed to load messages:", err?.response?.data || err.message);
-      }
-    };
+  fetchMessages();
+}, [receiverId, senderId,API_URL]); // Fetch once when chat opens
 
-    fetchMessages();
-  }, [receiverId, senderId, reloadTrigger, API_URL]);
+ useEffect(() => {
+  if (!socket) return;
 
-  useEffect(() => {
-    if (!socket) return;
+  const handleReceive = (msg) => {
+    // Only add if it's for the current open chat
+    if (msg.sender === receiverId || msg.receiver === receiverId) {
+      setMessages((prev) => [...prev, msg]);
+    }
+  };
 
-    const handleReceive = (msg) => {
-      if (msg.sender === receiverId || msg.receiver === receiverId) {
-        setMessages((prev) => [...prev, msg]);
-        setReloadTrigger((prev) => prev + 1);
-      }
-    };
+  socket.on("receiveMessage", handleReceive);
+  return () => socket.off("receiveMessage", handleReceive);
+}, [receiverId]);
 
-    socket.on("receiveMessage", handleReceive);
-
-    return () => {
-      socket.off("receiveMessage", handleReceive);
-    };
-  }, [receiverId]);
 
   return (
     <motion.div

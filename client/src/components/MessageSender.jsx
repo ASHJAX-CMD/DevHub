@@ -11,39 +11,32 @@ const MessageSender = ({
   const [text, setText] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!text.trim()) return;
+ const handleSend = async (e) => {
+  e.preventDefault();
+  if (!text.trim()) return;
 
-    const message = {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(`${API_URL}/api/messages/send`, {
       receiverId,
       text: text.trim(),
-    };
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-    try {
-      const token = localStorage.getItem("token");
+    const savedMessage = res.data;
 
-      const res = await axios.post(`${API_URL}/api/messages/send`, message, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    // Emit the saved message to the receiver
+    socket.emit("sendMessage", savedMessage);
 
-      const savedMessage = res.data;
+    // Append locally
+    setMessages((prev) => [...prev, savedMessage]);
+    setText("");
+  } catch (err) {
+    console.error("❌ Send failed:", err?.response?.data || err.message);
+  }
+};
 
-      socket.emit("sendMessage", savedMessage);
-
-      setMessages((prev) => [...prev, savedMessage]);
-      setReloadTrigger((prev) => prev + 1);
-      setText("");
-    } catch (err) {
-      console.error(
-        "❌ Failed to send message:",
-        err?.response?.data || err.message
-      );
-      alert("Failed to send message");
-    }
-  };
 
   return (
     <form onSubmit={handleSend}>
