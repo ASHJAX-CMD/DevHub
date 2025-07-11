@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaThumbsUp, FaRegCommentDots, FaPaperPlane } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { toggleFollow, toggleLike, sharePost } from "../Redux/slices/postSlice";
@@ -20,8 +20,10 @@ const PostProfile = ({
   const [code, setCode] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [shared, setShared] = useState(false);
-  const dispatch = useDispatch();
+  const [activeImage, setActiveImage] = useState(0);
+  const scrollRef = useRef(null);
 
+  const dispatch = useDispatch();
   const API_URL = import.meta.env.VITE_API_URL;
 
   const handleShare = () => {
@@ -32,20 +34,18 @@ const PostProfile = ({
     setShared(true);
   };
 
-  const handleFollowToggle = () => {
-    if (!userId?._id) return;
-    dispatch(
-      toggleFollow({
-        userId: userId._id,
-        isCurrentlyFollowing: userId.isFollowing,
-      })
-    );
-  };
-
   const handleLikeToggle = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
     dispatch(toggleLike({ postId }));
+  };
+
+  const handleImageScroll = () => {
+    const container = scrollRef.current;
+    const scrollLeft = container.scrollLeft;
+    const width = container.clientWidth;
+    const index = Math.round(scrollLeft / width);
+    setActiveImage(index);
   };
 
   useEffect(() => {
@@ -114,14 +114,6 @@ const PostProfile = ({
               </p>
             </div>
           </div>
-          {/* <button
-            onClick={handleFollowToggle}
-            className={`font-semibold hover:underline ${
-              userId?.isFollowing ? "text-gray-600" : "text-green-600"
-            }`}
-          >
-            {userId?.isFollowing ? "Following" : "Follow"}
-          </button> */}
         </div>
 
         {/* Content Area */}
@@ -134,18 +126,49 @@ const PostProfile = ({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
-            {images?.length > 0 ? (
-              images.map((img, i) => (
-                <img
-                  key={i}
-                  src={`${API_URL}/uploads/${img}`}
-                  alt={`Post image ${i}`}
-                  className="rounded max-h-56 object-cover w-full"
-                />
-              ))
-            ) : (
-              <p className="text-gray-400">No images uploaded.</p>
+          <div className="w-full">
+            <div
+              ref={scrollRef}
+              onScroll={handleImageScroll}
+              className="w-full overflow-x-auto flex snap-x snap-mandatory scroll-smooth rounded gap-2 scrollbar-thin scrollbar-thumb-white scrollbar-track-black"
+            >
+              {images?.length > 0 ? (
+                images.map((img, i) => (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 w-full  h-60 snap-start snap-x rounded overflow-hidden"
+                  >
+                    <img
+                      src={`${API_URL}/uploads/${img}`}
+                      alt={`Post image ${i}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400">No images uploaded.</p>
+              )}
+            </div>
+
+            {/* Dots for small screens */}
+            {images?.length > 1 && (
+              <div className="flex justify-center mt-2 space-x-2 lg:hidden">
+                {images.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-2 w-2 rounded-full transition ${
+                      i === activeImage ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                  ></span>
+                ))}
+              </div>
+            )}
+
+            {/* Scrollbar label for large screens */}
+            {images?.length > 1 && (
+              <div className="hidden lg:flex justify-center mt-2 text-xs text-gray-400">
+                Scroll → to view more images
+              </div>
             )}
           </div>
         )}
