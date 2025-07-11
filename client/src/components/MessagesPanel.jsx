@@ -51,15 +51,21 @@ const MessagesPanel = ({ receiver }) => {
   if (!socket) return;
 
   const handleReceive = (msg) => {
-    // Only add if it's for the current open chat
+    // 🛑 Ignore echoed message on sender's side (we already added it manually)
+    if (msg.sender === senderId) return;
+
+    // ✅ Add only if related to this chat
     if (msg.sender === receiverId || msg.receiver === receiverId) {
       setMessages((prev) => [...prev, msg]);
     }
   };
 
   socket.on("receiveMessage", handleReceive);
-  return () => socket.off("receiveMessage", handleReceive);
-}, [receiverId]);
+
+  return () => {
+    socket.off("receiveMessage", handleReceive);
+  };
+}, [receiverId, senderId]);
 
 
   return (
