@@ -67,7 +67,7 @@ app.use("/api/messages", require("./routes/messageRoute"));
 app.use("/api/follow", require("./routes/followRoute"));
 app.use("/api/userprofile", require("./routes/profileRoute")); 
 app.use("/api/comments", require("./routes/commentRoutes"));
-
+app.use("/api/setting", require("./routes/settingRoute"));
 // Health Check
 app.get("/", (req, res) => res.send("✅ API is running"));
 

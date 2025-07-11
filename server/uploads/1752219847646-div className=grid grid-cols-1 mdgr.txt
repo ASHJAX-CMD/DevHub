@@ -1,0 +1,17 @@
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            {userPosts.map((post) => (
+              <div key={post._id}>
+                <PostProfile
+                  sharesCount={post.shares?.length || 0}
+                  postId={post._id}
+                  content={post.content}
+                  images={post.images}
+                  file={post.file}
+                  createdAt={post.createdAt}
+                  userId={post.userId}
+                  likesCount={post.likesCount}
+                  likedByUser={post.likedByUser}
+                />
+              </div>
+            ))}
+          </div>
