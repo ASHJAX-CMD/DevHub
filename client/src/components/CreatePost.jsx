@@ -4,7 +4,7 @@ export default function CreatePost() {
   const [content, setContent] = useState("");
   const [codeFile, setCodeFile] = useState(null);
   const [images, setImages] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
 
   const handleImageChange = (e) => {
@@ -22,6 +22,7 @@ export default function CreatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (!codeFile) {
       alert("Please upload a code file.");
@@ -55,6 +56,8 @@ export default function CreatePost() {
     } catch (err) {
       console.error("❌ Submit error:", err);
       alert("Network error.");
+    }finally {
+      setLoading(false); // 🔓 re-enable
     }
   };
 
@@ -109,8 +112,14 @@ export default function CreatePost() {
 
           <div className="flex items-center space-x-4">
             <button
+              disabled={loading}
               type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+              
+               className={`px-4 py-2 rounded-xl  text-white transition ${
+            loading
+              ? "bg-green-800 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          } `}
             >
               Save
             </button>

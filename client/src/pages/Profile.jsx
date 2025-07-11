@@ -6,24 +6,27 @@ import {
   updateProfileInfo,
   updateProfileImage,
 } from "../Redux/slices/profileSlice";
+import { fetchUserPosts } from "../Redux/slices/postSlice";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { fetchUserPosts } from "../Redux/slices/postSlice";
-import PostProfile from "../components/PostsProfile";
 import { CgProfile } from "react-icons/cg";
+import PostProfile from "../components/PostsProfile";
+
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { profile, loading } = useSelector((state) => state.profile);
-  const { userPosts } = useSelector((state) => state.posts);
   const fileInputRef = useRef();
 
   const API_URL = import.meta.env.VITE_API_URL;
+
+  const { profile, loading } = useSelector((state) => state.profile);
+  const { userPosts } = useSelector((state) => state.posts);
 
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
   const [avatarPreview, setAvatarPreview] = useState("");
   const [saveChanges, setSaveChanges] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchUserProfile());
@@ -42,6 +45,14 @@ const Profile = () => {
     }
   }, [profile, API_URL]);
 
+  useEffect(() => {
+    if (profile) {
+      setSaveChanges(
+        fullName !== profile.fullName || bio !== profile.bio
+      );
+    }
+  }, [fullName, bio, profile]);
+
   const handleSaveChanges = (e) => {
     e.preventDefault();
     dispatch(updateProfileInfo({ fullName, bio }))
@@ -50,23 +61,25 @@ const Profile = () => {
       .catch((err) => alert("❌ Update failed: " + err));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    dispatch(updateProfileImage(file))
-      .unwrap()
-      .then((filename) => {
-        const imageUrl = `${API_URL}/uploads/profile/${filename}?t=${Date.now()}`;
-        setAvatarPreview(imageUrl);
-        dispatch(fetchUserProfile()).then((res) => {
-          if (res.payload) dispatch(setUser(res.payload));
-        });
-        alert("✅ Image updated");
-      })
-      .catch((err) => {
-        alert("❌ Upload failed: " + err);
-      });
+    setIsUploading(true);
+    try {
+      const filename = await dispatch(updateProfileImage(file)).unwrap();
+      const imageUrl = `${API_URL}/uploads/profile/${filename}?t=${Date.now()}`;
+      setAvatarPreview(imageUrl);
+
+      const res = await dispatch(fetchUserProfile());
+      if (res.payload) dispatch(setUser(res.payload));
+
+      alert("✅ Image updated");
+    } catch (err) {
+      alert("❌ Upload failed: " + err);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   if (loading || !profile) {
@@ -80,7 +93,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen flex justify-center items-start bg-black pt-10">
       <div className="flex flex-col p-4 items-center w-full gap-4">
-        {/* ← Back Arrow */}
+        {/* Back Button */}
         <div
           onClick={() => navigate(-1)}
           className="absolute top-5 left-5 text-gray-600 hover:text-white cursor-pointer flex items-center gap-1"
@@ -89,11 +102,11 @@ const Profile = () => {
           <span className="text-sm">Back</span>
         </div>
 
-        {/* Profile Details */}
+        {/* Profile Card */}
         <div className="w-full max-w-4xl bg-black/30 border-gray-900 shadow-md rounded-2xl p-2 flex flex-col space-y-8">
           <div className="flex flex-col md:flex-row md:space-x-10 space-y-6 md:space-y-0 pt-6">
             {/* Profile Image */}
-            <div className="w-full md:w-1/3 flex flex-col items-start md:items-start">
+            <div className="w-full md:w-1/3 flex flex-col items-start">
               <div className="w-20 h-20 md:w-32 md:h-32 relative">
                 {avatarPreview ? (
                   <img
@@ -103,15 +116,17 @@ const Profile = () => {
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-900 flex items-center justify-center rounded-full">
-                    <CgProfile className=" font-thin w-full h-full text-black" />
+                    <CgProfile className="w-full h-full text-black" />
                   </div>
                 )}
 
                 <button
-                  className="absolute bottom-0 right-0 bg-gray-200 px-3 py-1 text-sm rounded-xl shadow"
+                  className={`absolute bottom-0 right-0 bg-gray-200 px-3 py-1 text-sm rounded-xl shadow ${
+                    isUploading ? "cursor-not-allowed bg-gray-400 pointer-events-none" : ""
+                  }`}
                   onClick={() => fileInputRef.current.click()}
                 >
-                  Edit
+                  {isUploading ? "Uploading..." : "Edit"}
                 </button>
                 <input
                   type="file"
@@ -123,7 +138,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Editable Fields */}
+            {/* Profile Info Form */}
             <form
               onSubmit={handleSaveChanges}
               className="w-full md:w-2/3 flex flex-col space-y-4"
@@ -132,7 +147,7 @@ const Profile = () => {
                 <label className="block text-sm font-medium text-white">
                   Username
                 </label>
-                <p className="mt-1 text-white text-m font-semibold border border-gray-900 px-3 py-2 rounded-md">
+                <p className="mt-1 text-white font-semibold border border-gray-900 px-3 py-2 rounded-md">
                   {profile.username}
                 </p>
               </div>
@@ -144,11 +159,8 @@ const Profile = () => {
                 <input
                   type="text"
                   value={fullName}
-                  onChange={(e) => {
-                    setFullName(e.target.value);
-                    if (e.target.value) setSaveChanges(true);
-                  }}
-                  className="mt-1 w-full p-2 border border-gray-900 rounded-md focus:outline-none bg-black text-white focus:ring-2 focus:ring-green-300"
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="mt-1 w-full p-2 border border-gray-900 rounded-md bg-black text-white focus:ring-2 focus:ring-green-300"
                 />
               </div>
 
@@ -159,23 +171,20 @@ const Profile = () => {
                 <textarea
                   rows="3"
                   value={bio}
-                  onChange={(e) => {
-                    setBio(e.target.value);
-                    if (e.target.value) setSaveChanges(true);
-                  }}
+                  onChange={(e) => setBio(e.target.value)}
                   placeholder="Tell us about yourself"
                   className="w-full h-12 p-2 border bg-black border-gray-900 text-white rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-green-300"
                 ></textarea>
               </div>
 
-              <button
-                type="submit"
-                className={`${
-                  saveChanges ? "" : "hidden"
-                } self-end mt-2 bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700`}
-              >
-                Save Changes
-              </button>
+              {saveChanges && (
+                <button
+                  type="submit"
+                  className={`self-end mt-2 bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 ${loading?"cursor-not-allowed bg-green-800":""} `}
+                >
+                  Save Changes
+                </button>
+              )}
             </form>
           </div>
 
@@ -197,7 +206,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Posts */}
+        {/* Posts Grid */}
         <div className="text-white min-w-2/3 md:w-2/3 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {userPosts.map((post) => (
