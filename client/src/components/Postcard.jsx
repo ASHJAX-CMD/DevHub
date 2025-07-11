@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaThumbsUp, FaRegCommentDots, FaPaperPlane } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleFollow, toggleLike, sharePost } from "../Redux/slices/postSlice";
@@ -21,6 +21,9 @@ const PostCard = ({
   const [code, setCode] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [shared, setShared] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
+  const scrollRef = useRef(null);
+
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const currentUserId = user?._id;
@@ -49,6 +52,14 @@ const PostCard = ({
     const token = localStorage.getItem("token");
     if (!token) return;
     dispatch(toggleLike({ postId }));
+  };
+
+  const handleImageScroll = () => {
+    const container = scrollRef.current;
+    const scrollLeft = container.scrollLeft;
+    const width = container.clientWidth;
+    const index = Math.round(scrollLeft / width);
+    setActiveImage(index);
   };
 
   useEffect(() => {
@@ -146,18 +157,50 @@ const PostCard = ({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2 h-60 md:h-auto overflow-hidden">
-            {images?.length > 0 ? (
-              images.map((img, i) => (
-                <img
-                  key={i}
-                  src={`${API_URL}/uploads/${img}`}
-                  alt={`Post image ${i}`}
-                  className="rounded max-h-56 w-full object-scale-down"
-                />
-              ))
-            ) : (
-              <p className="text-gray-400">No images uploaded.</p>
+          <div className="w-full">
+            {/* Scrollable image carousel */}
+            <div
+              ref={scrollRef}
+              onScroll={handleImageScroll}
+              className="w-full overflow-x-auto scrollbar-none md:scrollbar-thin flex snap-x snap-start scroll-smooth rounded gap-2 scrollbar-thin scrollbar-thumb-white scrollbar-track-black"
+            >
+              {images?.length > 0 ? (
+                images.map((img, i) => (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 w-full   snap-x h-60 snap-start rounded overflow-hidden"
+                  >
+                    <img
+                      src={`${API_URL}/uploads/${img}`}
+                      alt={`Post image ${i}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400">No images uploaded.</p>
+              )}
+            </div>
+
+            {/* Dots - only on small screens */}
+            {images?.length > 1 && (
+              <div className="flex justify-center mt-2 space-x-2 lg:hidden">
+                {images.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-2 w-2 rounded-full transition ${
+                      i === activeImage ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                  ></span>
+                ))}
+              </div>
+            )}
+
+            {/* Scrollbar label - only on large screens */}
+            {images?.length > 1 && (
+              <div className="hidden lg:flex justify-center mt-2 text-xs text-gray-400">
+                Scroll → to view more images
+              </div>
             )}
           </div>
         )}
@@ -196,11 +239,9 @@ const PostCard = ({
       {/* Comments Section */}
       {showComments && (
         <div
-          className={`
-            fixed inset-0 z-50 bg-black bg-opacity-90 p-2
+          className={`fixed inset-0 z-50 bg-black bg-opacity-90 p-2
             md:static md:z-auto md:bg-transparent md:p-0
-            flex flex-col rounded-xl w-full md:w-[30vw] md:max-h-auto md:h-auto
-          `}
+            flex flex-col rounded-xl w-full md:w-[30vw] md:max-h-auto md:h-auto`}
         >
           <button
             onClick={() => setShowComments(false)}
