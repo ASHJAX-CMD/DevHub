@@ -10,33 +10,43 @@ const MessageSender = ({
 }) => {
   const [text, setText] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
+  const [loading, setLoading] = useState(false);
 
- const handleSend = async (e) => {
-  e.preventDefault();
-  if (!text.trim()) return;
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!text.trim() || loading) return;
 
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.post(`${API_URL}/api/messages/send`, {
+    const message = {
       receiverId,
       text: text.trim(),
-    }, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    };
 
-    const savedMessage = res.data;
+    try {
+      setLoading(true); // 🔒 disable button
+      const token = localStorage.getItem("token");
 
-    // Emit the saved message to the receiver
-    socket.emit("sendMessage", savedMessage);
+      const res = await axios.post(`${API_URL}/api/messages/send`, message, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    // Append locally
-    setMessages((prev) => [...prev, savedMessage]);
-    setText("");
-  } catch (err) {
-    console.error("❌ Send failed:", err?.response?.data || err.message);
-  }
-};
+      const savedMessage = res.data;
 
+      socket.emit("sendMessage", savedMessage);
+      setMessages((prev) => [...prev, savedMessage]);
+      setReloadTrigger((prev) => prev + 1);
+      setText("");
+    } catch (err) {
+      console.error(
+        "❌ Failed to send message:",
+        err?.response?.data || err.message
+      );
+      alert("Failed to send message");
+    } finally {
+      setLoading(false); // 🔓 re-enable
+    }
+  };
 
   return (
     <form onSubmit={handleSend}>
@@ -50,9 +60,14 @@ const MessageSender = ({
         />
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
+          disabled={loading}
+          className={`px-4 py-2 rounded-full transition ${
+            loading
+              ? "bg-green-800 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
+          } text-white`}
         >
-          Send
+          {loading ? "Send" : "Send"}
         </button>
       </div>
     </form>
