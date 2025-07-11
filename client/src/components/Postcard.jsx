@@ -146,14 +146,14 @@ const PostCard = ({
             </div>
           </div>
         ) : (
-          <div className="grid md:h-auto h-60 grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 h-60 md:h-auto overflow-hidden">
             {images?.length > 0 ? (
               images.map((img, i) => (
                 <img
                   key={i}
                   src={`${API_URL}/uploads/${img}`}
                   alt={`Post image ${i}`}
-                  className="rounded max-h-56 object-contain "
+                  className="rounded max-h-56 w-full object-scale-down"
                 />
               ))
             ) : (
@@ -168,7 +168,9 @@ const PostCard = ({
             className="flex items-center space-x-1 cursor-pointer hover:scale-105 transition"
             onClick={handleLikeToggle}
           >
-            <FaThumbsUp className={likedByUser ? "text-green-600 text-xl" : ""} />
+            <FaThumbsUp
+              className={likedByUser ? "text-green-600 text-xl" : ""}
+            />
             <span className="ml-1 text-xs">{likesCount}</span>
           </div>
           <div
