@@ -173,6 +173,7 @@ const PublicUserProfile = () => {
                   likesCount={post.likesCount}
                   likedByUser={post.likedByUser}
                 />
+                {console.log(post.likedByUser)}
               </div>
             ))}
           </div>

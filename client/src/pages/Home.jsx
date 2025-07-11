@@ -33,6 +33,7 @@ const Home = () => {
       likesCount={post.likesCount}
       likedByUser={post.likedByUser}
     />
+    {console.log(post.userId)}
   </div>
 ))}
 

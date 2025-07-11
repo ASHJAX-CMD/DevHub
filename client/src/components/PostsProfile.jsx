@@ -4,6 +4,7 @@ import { FaThumbsUp, FaRegCommentDots, FaPaperPlane } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { toggleFollow, toggleLike, sharePost } from "../Redux/slices/postSlice";
 import Comment from "../components/Comments";
+import { useSelector } from "react-redux";
 
 const PostProfile = ({
   content,
@@ -22,7 +23,12 @@ const PostProfile = ({
   const [shared, setShared] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const scrollRef = useRef(null);
+const postFromRedux = useSelector((state) =>
+  state.posts.allPosts.find((p) => p._id === postId)
+);
 
+const likes = postFromRedux?.likesCount ?? likesCount;
+const liked = postFromRedux?.likedByUser ?? likedByUser;
   const dispatch = useDispatch();
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -179,10 +185,9 @@ const PostProfile = ({
             className="flex items-center space-x-1 cursor-pointer hover:scale-105 transition"
             onClick={handleLikeToggle}
           >
-            <FaThumbsUp
-              className={likedByUser ? "text-green-600 text-xl" : ""}
-            />
-            <span className="ml-1 text-xs">{likesCount}</span>
+            <FaThumbsUp className={liked ? "text-green-600 text-xl" : ""} />
+            <span className="ml-1 text-xs">{likes}</span>
+            {console.log(likes,liked)}
           </div>
           <div
             className={`flex items-center space-x-1 text-xl cursor-pointer hover:scale-105 transition ${

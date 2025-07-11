@@ -17,6 +17,7 @@ const PostCard = ({
   likedByUser,
   sharesCount,
 }) => {
+
   const [activeTab, setActiveTab] = useState("Code");
   const [code, setCode] = useState("");
   const [showComments, setShowComments] = useState(false);
