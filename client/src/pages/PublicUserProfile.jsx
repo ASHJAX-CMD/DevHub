@@ -142,6 +142,7 @@ const PublicUserProfile = () => {
           </div>
 
           <div className="flex justify-around border-b border-t mt-4">
+            {console.log(useer.posts.length)}
             {[
               { label: "Followers", count: useer.followers.length },
               { label: "Following", count: useer.following.length },

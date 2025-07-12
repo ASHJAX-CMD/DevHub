@@ -5,7 +5,8 @@ import { useDispatch } from "react-redux";
 import { toggleFollow, toggleLike, sharePost } from "../Redux/slices/postSlice";
 import Comment from "../components/Comments";
 import { useSelector } from "react-redux";
-
+import { toggleLikeState } from "../Redux/slices/postSlice";
+import { debounce } from "../utils/debounce"; // ✅ import
 const PostProfile = ({
   content,
   images,
@@ -23,6 +24,7 @@ const PostProfile = ({
   const [shared, setShared] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const scrollRef = useRef(null);
+
 const postFromRedux = useSelector((state) =>
   state.posts.allPosts.find((p) => p._id === postId)
 );
@@ -31,7 +33,24 @@ const likes = postFromRedux?.likesCount ?? likesCount;
 const liked = postFromRedux?.likedByUser ?? likedByUser;
   const dispatch = useDispatch();
   const API_URL = import.meta.env.VITE_API_URL;
-
+const debouncedLikeAPI = useRef(
+  debounce(async (postId) => {
+    try {
+      await axios.put(
+        `${API_URL}/api/posts/${postId}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } catch (err) {
+      console.error("Like API failed, reverting UI");
+      dispatch(toggleLikeState({ postId })); // ❌ revert optimistic update
+    }
+  }, 500)
+).current;
   const handleShare = () => {
     dispatch(sharePost({ postId }));
     const shareUrl = `${window.location.origin}/post/${postId}`;
@@ -40,11 +59,12 @@ const liked = postFromRedux?.likedByUser ?? likedByUser;
     setShared(true);
   };
 
-  const handleLikeToggle = () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    dispatch(toggleLike({ postId }));
-  };
+const handleLikeToggle = () => {
+  if (!userId) return;
+
+  dispatch(toggleLikeState({ postId }));  // ✅ Optimistic update
+  debouncedLikeAPI(postId);               // ✅ Debounced actual API call
+};
 
   const handleImageScroll = () => {
     const container = scrollRef.current;

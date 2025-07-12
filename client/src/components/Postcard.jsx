@@ -5,7 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleFollow, toggleLike, sharePost } from "../Redux/slices/postSlice";
 import Comment from "../components/Comments";
 import { Link, useNavigate } from "react-router-dom";
-
+import { updateLikeState } from "../Redux/slices/postSlice";
+import { toggleLikeState } from "../Redux/slices/postSlice";
+import { debounce } from "../utils/debounce";
 const PostCard = ({
   content,
   images,
@@ -48,12 +50,30 @@ const PostCard = ({
       })
     );
   };
+const debouncedLikeAPI = useRef(
+  debounce(async (postId) => {
+    try {
+      await axios.put(
+        `${API_URL}/api/posts/${postId}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } catch (err) {
+      console.error("Like API failed, reverting UI");
+      dispatch(toggleLikeState({ postId })); // ❌ revert optimistic update
+    }
+  }, 500)
+).current;
+const handleLikeToggle = () => {
+  if (!user) return;
 
-  const handleLikeToggle = () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    dispatch(toggleLike({ postId }));
-  };
+  dispatch(toggleLikeState({ postId }));  // ✅ Optimistic update
+  debouncedLikeAPI(postId);               // ✅ Debounced actual API call
+};
 
   const handleImageScroll = () => {
     const container = scrollRef.current;

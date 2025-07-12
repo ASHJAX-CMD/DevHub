@@ -70,7 +70,6 @@ const SearchProfile = () => {
               <img
                 src={`${API_URL}/uploads/profile/${profileImage}?t=${Date.now()}`}
                 alt="Profile"
-                loading="lazy"
                 className="w-full h-full object-cover"
               />
             ) : (
