@@ -1,19 +1,10 @@
 const multer = require("multer");
 const path = require("path");
 
-// Define profile image storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/profile"); // store profile images in a separate folder
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9) + ext;
-    cb(null, uniqueName);
-  },
-});
+// Use memory storage instead of disk
+const storage = multer.memoryStorage();
 
-// Allow only images
+// Validate file types
 const allowedExtensions = [".jpg", ".jpeg", ".png"];
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
@@ -24,7 +15,11 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Export single upload handler for profileImage
-const profileUpload = multer({ storage, fileFilter }).single("profileImage");
+const profileUpload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max
+}).single("profileImage");
+
 
 module.exports = profileUpload;
