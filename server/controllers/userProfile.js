@@ -29,6 +29,7 @@ const PublicUser = async (req, res) => {
 
     const user = await User.findById(userId)
       .populate("followers", "username fullName profileImage")
+      .populate("posts")
       .populate("following", "username fullName profileImage")
       .select("-password");
 
