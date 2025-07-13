@@ -58,6 +58,9 @@ const Login = () => {
         alt="Logo"
         className="absolute top-4 left-4 w-24 z-10"
       />
+      {console.log(import.meta.env.VITE_API_URL)}
+{console.log(import.meta.env.VITE_SOCKET_URL)}
+
 
       {/* Login Box */}
       <div className="relative z-10 bg-white/90 backdrop-blur-lg rounded-3xl p-8 w-full max-w-md shadow-md mx-4">
